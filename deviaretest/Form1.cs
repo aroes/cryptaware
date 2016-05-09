@@ -17,14 +17,12 @@ namespace deviaretest
     public partial class hooker : Form
     {
         private WMI.Win32.ProcessWatcher procWatcher;
-
+        private static hooker UI;
 
         public hooker()
         {
             InitializeComponent();
-
-            //Initialize hooking management class
-            HookManager hookManager = new HookManager();
+            UI = this;
 
             //Initialize process creation watcher
             procWatcher = new WMI.Win32.ProcessWatcher();
@@ -32,12 +30,17 @@ namespace deviaretest
 
         }
 
-
+        public static hooker GetInstance()
+        {
+            return UI;
+        }
 
 
 
         private void hooker_Load(object sender, EventArgs e)
         {
+
+
             //NktHook hook = _spyMgr.CreateHook("kernel32.dll!CreateFileW", (int)(eNktHookFlags.flgRestrictAutoHookToSameExecutable | eNktHookFlags.flgOnlyPreCall));
 
             //_spyMgr.OnFunctionCalled += new DNktSpyMgrEvents_OnFunctionCalledEventHandler(OnFunctionCalled);

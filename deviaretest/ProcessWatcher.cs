@@ -6,6 +6,7 @@ using System.Management;
 using System.Diagnostics;
 using deviaretest;
 using Nektra.Deviare2;
+using static deviaretest.HookManager;
 
 namespace WMI.Win32
 {
@@ -64,8 +65,9 @@ namespace WMI.Win32
         public static void procWatcher_ProcessCreated(Win32_Process process)
         {
             Debug.WriteLine("Created " + process.Name + " " + process.ProcessId + " " + "DateTime:" + DateTime.Now);
-            NktProcess createdProcess = HookManager.GetProcess(process.Name);
-            HookManager.InstallHooks(createdProcess);
+            HookManager hm = new HookManager();
+            NktProcess createdProcess = hm.GetProcess(Convert.ToInt32(process.ProcessId));
+            hm.InstallHooks(createdProcess);
         }
 
     }

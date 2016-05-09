@@ -5,13 +5,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace deviaretest
 {
     public class HookManager
     {
-        private static NktSpyMgr spyMgr;
-        private NktProcess process;
+        private NktSpyMgr spyMgr;
+
         public HookManager()
         {
             //Initialize spy manager
@@ -20,14 +21,39 @@ namespace deviaretest
 
         }
 
-        //Installs the required hooks and activates them
-        public static void InstallHooks(NktProcess process)
+        public static void listViewAddItem(ListView varListView, ListViewItem item)
         {
-            Debug.WriteLine("Installing hooks");
+            if (varListView.InvokeRequired)
+            {
+                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItem(varListView, item)));
+            }
+            else
+            {
+                varListView.Items.Add(item);
+            }
         }
 
-        //Gets the NktProcess handle to the named process
-        public static NktProcess GetProcess(string processName)
+        //Installs the required hooks and activates them
+        public void InstallHooks(NktProcess process)
+        {
+            Debug.WriteLine("Installing hooks in " + process.Name);
+
+            //Display the new process on the UI
+            ListViewItem item = new ListViewItem(process.Name);
+            hooker UI = hooker.GetInstance();
+            listViewAddItem(UI.processListView, item);
+
+            //Install each function hook
+            InstallFunctionHook("createrewgr");
+        }
+
+        private void InstallFunctionHook(string functionName)
+        {
+
+        }
+
+        //Get NktProcess by name (maybe outdated method)
+        public NktProcess GetProcess(string processName)
         {
             NktProcessesEnum enumProcess = spyMgr.Processes();
             NktProcess tempProcess = enumProcess.First();
@@ -40,6 +66,18 @@ namespace deviaretest
                 tempProcess = enumProcess.Next();
             }
             return null;
+        }
+
+        //Get NktProcess by its PID
+        public NktProcess GetProcess(int ID)
+        {
+            NktProcessesEnum enumProcess = spyMgr.Processes();
+            NktProcess process = enumProcess.GetById(ID);
+            if (process == null)
+            {
+                Debug.WriteLine("Fatal error while retrieving process by PID " + ID);
+            }
+            return process;
         }
     }
 }
