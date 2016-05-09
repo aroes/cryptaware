@@ -16,7 +16,7 @@ namespace deviaretest
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new hooker());
+            Application.Run(new FormInterface());
         }
     }
 }

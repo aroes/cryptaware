@@ -14,12 +14,12 @@ using System.Diagnostics;
 namespace deviaretest
 
 {
-    public partial class hooker : Form
+    public partial class FormInterface : Form
     {
         private WMI.Win32.ProcessWatcher procWatcher;
-        private static hooker UI;
+        private static FormInterface UI;
 
-        public hooker()
+        public FormInterface()
         {
             InitializeComponent();
             UI = this;
@@ -30,7 +30,7 @@ namespace deviaretest
 
         }
 
-        public static hooker GetInstance()
+        public static FormInterface GetInstance()
         {
             return UI;
         }

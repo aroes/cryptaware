@@ -40,7 +40,7 @@ namespace deviaretest
 
             //Display the new process on the UI
             ListViewItem item = new ListViewItem(process.Name);
-            hooker UI = hooker.GetInstance();
+            FormInterface UI = FormInterface.GetInstance();
             listViewAddItem(UI.processListView, item);
 
             //Install each function hook

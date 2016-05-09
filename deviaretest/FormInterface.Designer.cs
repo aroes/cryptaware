@@ -1,6 +1,6 @@
 ﻿namespace deviaretest
 {
-    partial class hooker
+    partial class FormInterface
     {
         /// <summary>
         /// Required designer variable.
@@ -81,7 +81,7 @@
             this.label1.Text = "Tracked Processes";
             this.label1.UseMnemonic = false;
             // 
-            // hooker
+            // FormInterface
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -90,7 +90,7 @@
             this.Controls.Add(this.processListView);
             this.Controls.Add(this.StopMonitorButton);
             this.Controls.Add(this.MonitorNewProcessesButton);
-            this.Name = "hooker";
+            this.Name = "FormInterface";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.hooker_Load);
             this.ResumeLayout(false);
