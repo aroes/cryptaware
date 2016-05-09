@@ -44,11 +44,35 @@ namespace deviaretest
             listViewAddItem(UI.processListView, item);
 
             //Install each function hook
-            InstallFunctionHook("createrewgr");
+            InstallFunctionHook("kernel32.dll!CreateFileW", process);
         }
 
-        private void InstallFunctionHook(string functionName)
+        private void InstallFunctionHook(string functionName, NktProcess process)
         {
+            //Create hook for the given function
+            NktHook hook = spyMgr.CreateHook(functionName, (int)(eNktHookFlags.flgOnly32Bits | eNktHookFlags.flgOnlyPreCall));
+            //Event watcher
+            spyMgr.OnFunctionCalled += new DNktSpyMgrEvents_OnFunctionCalledEventHandler(OnFunctionCalled);
+            //Activate the hook
+            hook.Hook(true);
+            hook.Attach(process, true);
+        }
+
+
+        //When a hooked function executes
+        void OnFunctionCalled(NktHook hook, INktProcess proc, INktHookCallInfo callInfo)
+        {
+
+            switch (hook.FunctionName)
+            {
+                case "kernel32.dll!CreateFileW":
+                    Debug.WriteLine(DateTime.Now.ToString("h:mm:ss tt :: ") + "CreateFileW call in " + proc.Name + " intercepted");
+                    break;
+                default:
+                    Debug.WriteLine("Something went wrong: the called function has no handler");
+                    break;
+            }
+
 
         }
 
