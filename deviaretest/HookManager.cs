@@ -34,17 +34,26 @@ namespace deviaretest
         }
 
         //Installs the required hooks and activates them
-        public void InstallHooks(NktProcess process)
+        public int InstallHooks(NktProcess process)
         {
-            Debug.WriteLine("Installing hooks in " + process.Name);
+            try
+            {
+                Debug.WriteLine("Installing hooks in " + process.Name);
 
-            //Display the new process on the UI
-            ListViewItem item = new ListViewItem(process.Name);
-            FormInterface UI = FormInterface.GetInstance();
-            listViewAddItem(UI.processListView, item);
+                //Install each function hook
+                InstallFunctionHook("kernel32.dll!CreateFileW", process);
 
-            //Install each function hook
-            InstallFunctionHook("kernel32.dll!CreateFileW", process);
+                //Display the new process on the UI
+                ListViewItem item = new ListViewItem(process.Name);
+                FormInterface UI = FormInterface.GetInstance();
+                listViewAddItem(UI.processListView, item);
+                return 0;
+            }
+            catch (NullReferenceException)
+            {
+                return -1;
+            }
+
         }
 
         private void InstallFunctionHook(string functionName, NktProcess process)
@@ -99,7 +108,7 @@ namespace deviaretest
             NktProcess process = enumProcess.GetById(ID);
             if (process == null)
             {
-                Debug.WriteLine("Fatal error while retrieving process by PID " + ID);
+                Debug.WriteLine("Error while retrieving process by PID " + ID);
             }
             return process;
         }

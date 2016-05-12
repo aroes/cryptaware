@@ -16,7 +16,7 @@ namespace deviaretest
 {
     public partial class FormInterface : Form
     {
-        private WMI.Win32.ProcessWatcher procWatcher;
+        private ProcessWatcher procWatcher;
         private static FormInterface UI;
 
         public FormInterface()
@@ -25,8 +25,8 @@ namespace deviaretest
             UI = this;
 
             //Initialize process creation watcher
-            procWatcher = new WMI.Win32.ProcessWatcher();
-            procWatcher.ProcessCreated += new WMI.Win32.ProcessEventHandler(WMI.Win32.ProcessWatcher.procWatcher_ProcessCreated);
+            procWatcher = new ProcessWatcher();
+            //procWatcher.ProcessCreated += new WMI.Win32.ProcessEventHandler(WMI.Win32.ProcessWatcher.procWatcher_ProcessCreated);
 
         }
 
@@ -41,23 +41,8 @@ namespace deviaretest
         {
 
 
-            //NktHook hook = _spyMgr.CreateHook("kernel32.dll!CreateFileW", (int)(eNktHookFlags.flgRestrictAutoHookToSameExecutable | eNktHookFlags.flgOnlyPreCall));
-
-            //_spyMgr.OnFunctionCalled += new DNktSpyMgrEvents_OnFunctionCalledEventHandler(OnFunctionCalled);
-
-            //hook.Hook(true);
-            //hook.Attach(_process, true);
-
         }
 
-
-        //When a hooked function executes
-        void OnFunctionCalled(NktHook hook, INktProcess proc, INktHookCallInfo callInfo)
-        {
-
-            Debug.WriteLine("The requested function was called!");
-
-        }
 
 
 

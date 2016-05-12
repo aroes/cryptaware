@@ -8,67 +8,55 @@ using deviaretest;
 using Nektra.Deviare2;
 using static deviaretest.HookManager;
 
-namespace WMI.Win32
+
+public class ProcessWatcher
 {
-    public delegate void ProcessEventHandler(Win32_Process proc);
-    public class ProcessWatcher : ManagementEventWatcher
+    private static ProcessWatcher pWatcher;
+    private ManagementEventWatcher startWatch;
+
+    public ProcessWatcher()
     {
-        // Process creation event
-        public event ProcessEventHandler ProcessCreated;
-
-
-        // WMI WQL process query strings
-        static readonly string WMI_OPER_EVENT_QUERY = @"SELECT * FROM 
-                __InstanceOperationEvent WITHIN 1 WHERE TargetInstance ISA 'Win32_Process'";
-        static readonly string WMI_OPER_EVENT_QUERY_WITH_PROC =
-            WMI_OPER_EVENT_QUERY + " and TargetInstance.Name = '{0}'";
-
-        public ProcessWatcher()
-        {
-            Init(string.Empty);
-        }
-
-        public ProcessWatcher(string processName)
-        {
-            Init(processName);
-        }
-
-        private void Init(string processName)
-        {
-            this.Query.QueryLanguage = "WQL";
-            if (string.IsNullOrEmpty(processName))
-            {
-                this.Query.QueryString = WMI_OPER_EVENT_QUERY;
-            }
-            else
-            {
-                this.Query.QueryString =
-                    string.Format(WMI_OPER_EVENT_QUERY_WITH_PROC, processName);
-            }
-
-            this.EventArrived += new EventArrivedEventHandler(watcher_EventArrived);
-        }
-
-        private void watcher_EventArrived(object sender, EventArrivedEventArgs e)
-        {
-            string eventType = e.NewEvent.ClassPath.ClassName;
-            Win32_Process proc = new
-                Win32_Process(e.NewEvent["TargetInstance"] as ManagementBaseObject);
-
-            if (eventType == "__InstanceCreationEvent")
-            {
-                ProcessCreated?.Invoke(proc);
-            }
-        }
-
-        //Handler for 'created process' event
-        public static void procWatcher_ProcessCreated(Win32_Process process)
-        {
-            Debug.WriteLine("Created " + process.Name + " " + process.ProcessId + " " + "DateTime:" + DateTime.Now);
-            HookManager hm = new HookManager();
-            NktProcess createdProcess = hm.GetProcess(Convert.ToInt32(process.ProcessId));
-            hm.InstallHooks(createdProcess);
-        }
-
+        pWatcher = this;
+        Init();
     }
+
+    public static ProcessWatcher GetInstance()
+    {
+        return pWatcher;
+    }
+
+    private static void Init()
+    {
+        ProcessWatcher.GetInstance().startWatch = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStartTrace"));
+        ProcessWatcher.GetInstance().startWatch.EventArrived += new EventArrivedEventHandler(startWatch_EventArrived);
+    }
+
+    public void Start()
+    {
+        startWatch.Start();
+    }
+
+    public void Stop()
+    {
+        startWatch.Stop();
+    }
+
+    private static void startWatch_EventArrived(object sender, EventArrivedEventArgs e)
+    {
+        Debug.WriteLine("Process started: {0}", e.NewEvent.Properties["ProcessId"].Value);
+        Debug.WriteLine("Created " + e.NewEvent.Properties["ProcessName"].Value + " " + e.NewEvent.Properties["ProcessId"].Value + " " + "DateTime:" + DateTime.Now);
+        HookManager hm = new HookManager();
+        NktProcess createdProcess = hm.GetProcess(Convert.ToInt32(e.NewEvent.Properties["ProcessId"].Value));
+        int status = hm.InstallHooks(createdProcess);
+        if (status >= 0)
+        {
+            Debug.WriteLine("Success");
+        }
+        else
+        {
+            Debug.WriteLine("Hooking failed: Process no longer exists");
+        }
+    }
+
 }
+
