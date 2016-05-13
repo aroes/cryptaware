@@ -34,26 +34,29 @@ public class ProcessWatcher
 
     private static void Init()
     {
-        ProcessWatcher.GetInstance().startWatch = new ManagementEventWatcher(new WqlEventQuery("SELECT * FROM Win32_ProcessStartTrace"));
-        ProcessWatcher.GetInstance().startWatch.EventArrived += new EventArrivedEventHandler(startWatch_EventArrived);
+        ProcessWatcher.GetInstance().startWatch = new ManagementEventWatcher(@"SELECT * FROM 
+                    __InstanceCreationEvent WITHIN 1 WHERE TargetInstance ISA 'Win32_Process'");
     }
 
     public void Start()
     {
+        startWatch.EventArrived += startWatch_EventArrived;
         startWatch.Start();
     }
 
     public void Stop()
     {
+        startWatch.EventArrived -= startWatch_EventArrived;
         startWatch.Stop();
     }
 
     private static void startWatch_EventArrived(object sender, EventArrivedEventArgs e)
     {
-        Debug.WriteLine("Process started: {0}", e.NewEvent.Properties["ProcessId"].Value);
-        Debug.WriteLine("Created " + e.NewEvent.Properties["ProcessName"].Value + " " + e.NewEvent.Properties["ProcessId"].Value + " " + "DateTime:" + DateTime.Now);
+        ManagementBaseObject obj = e.NewEvent["TargetInstance"] as ManagementBaseObject;
+        Debug.WriteLine("Process started: {0}", obj.Properties["ProcessId"].Value);
+        Debug.WriteLine("Created " + obj.Properties["Name"].Value + " " + obj.Properties["ProcessId"].Value + " " + "DateTime:" + DateTime.Now);
         HookManager hm = new HookManager(ProcessWatcher.GetInstance().spyMgr);
-        NktProcess createdProcess = hm.GetProcess(Convert.ToInt32(e.NewEvent.Properties["ProcessId"].Value));
+        NktProcess createdProcess = hm.GetProcess(Convert.ToInt32(obj.Properties["ProcessId"].Value));
         int status = hm.InstallHooks(createdProcess);
         if (status >= 0)
         {
