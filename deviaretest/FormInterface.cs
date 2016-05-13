@@ -37,7 +37,7 @@ namespace deviaretest
 
 
 
-        private void hooker_Load(object sender, EventArgs e)
+        private void FormInterface_Load(object sender, EventArgs e)
         {
 
 

@@ -13,19 +13,25 @@ namespace deviaretest
     {
         private NktSpyMgr spyMgr;
 
-        public HookManager()
+        private FormInterface UI;
+
+        private IntelliMod intelligence;
+
+        public HookManager(NktSpyMgr spyMgr)
         {
-            //Initialize spy manager
-            spyMgr = new NktSpyMgr();
-            spyMgr.Initialize();
+            this.spyMgr = spyMgr;
+            this.UI = FormInterface.GetInstance();
+            intelligence = new IntelliMod();
 
         }
 
-        public static void listViewAddItem(ListView varListView, ListViewItem item)
+        //Thread safe UI update
+        public static void listViewAddItem(ListView varListView, string s)
         {
+            ListViewItem item = new ListViewItem(s);
             if (varListView.InvokeRequired)
             {
-                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItem(varListView, item)));
+                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItem(varListView, s)));
             }
             else
             {
@@ -33,7 +39,22 @@ namespace deviaretest
             }
         }
 
-        //Installs the required hooks and activates them
+        public static void listViewAddItemRange(ListView varListView, string s, string[] row)
+        {
+            ListViewItem item = new ListViewItem(s);
+            if (varListView.InvokeRequired)
+            {
+                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItemRange(varListView, s, row)));
+            }
+            else
+            {
+                varListView.Items.Add(item).SubItems.AddRange(row);
+            }
+        }
+
+
+
+        //Installs the required hooks and activates them and initialises intelligence
         public int InstallHooks(NktProcess process)
         {
             try
@@ -41,12 +62,22 @@ namespace deviaretest
                 Debug.WriteLine("Installing hooks in " + process.Name);
 
                 //Install each function hook
-                InstallFunctionHook("kernel32.dll!CreateFileW", process);
+                //InstallFunctionHook("kernel32.dll!CreateFileW", process);
 
-                //Display the new process on the UI
-                ListViewItem item = new ListViewItem(process.Name);
-                FormInterface UI = FormInterface.GetInstance();
-                listViewAddItem(UI.processListView, item);
+                //InstallFunctionHook("advapi32.dll!RegOpenKeyExA", process);
+                //InstallFunctionHook("advapi32.dll!RegOpenKeyExW", process);
+
+                InstallFunctionHook("advapi32.dll!RegCreateKeyExA", process);
+                InstallFunctionHook("advapi32.dll!RegCreateKeyExW", process);
+
+                //Normally the intelligence module is specific to each process
+                intelligence.setProcess(process);
+
+                if (UI.debugCheckBox.Checked)
+                {
+                    //Display the new process on the UI
+                    listViewAddItem(UI.processListView, process.Name);
+                }
                 return 0;
             }
             catch (NullReferenceException)
@@ -58,8 +89,9 @@ namespace deviaretest
 
         private void InstallFunctionHook(string functionName, NktProcess process)
         {
+            // Removed this flag eNktHookFlags.flgOnly32Bits
             //Create hook for the given function
-            NktHook hook = spyMgr.CreateHook(functionName, (int)(eNktHookFlags.flgOnly32Bits | eNktHookFlags.flgOnlyPreCall));
+            NktHook hook = spyMgr.CreateHook(functionName, (int)eNktHookFlags.flgOnlyPreCall);
             //Event watcher
             spyMgr.OnFunctionCalled += new DNktSpyMgrEvents_OnFunctionCalledEventHandler(OnFunctionCalled);
             //Activate the hook
@@ -71,17 +103,51 @@ namespace deviaretest
         //When a hooked function executes
         void OnFunctionCalled(NktHook hook, INktProcess proc, INktHookCallInfo callInfo)
         {
+            if (UI.debugCheckBox.Checked)
+            {
+                //Display call on the UI
+                string[] row = { proc.Name, DateTime.Now.ToString("h:mm:ss") };
+                listViewAddItemRange(UI.calledFListView, hook.FunctionName, row);
+            }
+
 
             switch (hook.FunctionName)
             {
                 case "kernel32.dll!CreateFileW":
                     Debug.WriteLine(DateTime.Now.ToString("h:mm:ss tt :: ") + "CreateFileW call in " + proc.Name + " intercepted");
                     break;
+                case "advapi32.dll!RegOpenKeyExA":
+                    Debug.WriteLine("RegOpenKey " + callInfo.Params().GetAt(1).ReadString());
+                    break;
+                case "advapi32.dll!RegOpenKeyExW":
+                    Debug.WriteLine("RegOpenKey " + callInfo.Params().GetAt(1).ReadString());
+                    break;
+                case "advapi32.dll!RegCreateKeyExA":
+                    Debug.WriteLine("RegCreateKey " + callInfo.Params().GetAt(1).ReadString());
+                    checkStartupInstallation(callInfo.Params().GetAt(1).ReadString());
+                    break;
+                case "advapi32.dll!RegCreateKeyExW":
+                    Debug.WriteLine("RegCreateKey " + callInfo.Params().GetAt(1).ReadString());
+                    checkStartupInstallation(callInfo.Params().GetAt(1).ReadString());
+                    break;
                 default:
                     Debug.WriteLine("Something went wrong: the called function has no handler");
                     break;
             }
 
+
+        }
+
+        private void checkStartupInstallation(string path)
+        {
+            if (path.Contains("Windows\\CurrentVersion\\Run") || path.Contains("Windows\\CurrentVersion\\RunOnce"))
+            {
+                intelligence.foundStartup();
+                if (UI.debugCheckBox.Checked)
+                {
+                    listViewAddItem(UI.signsListView, "Startup Install");
+                }
+            }
 
         }
 

@@ -104,6 +104,7 @@
       <DependentUpon>FormInterface.cs</DependentUpon>
     </Compile>
     <Compile Include="HookManager.cs" />
+    <Compile Include="IntelliMod.cs" />
     <Compile Include="ProcessWatcher.cs">
       <SubType>Component</SubType>
     </Compile>

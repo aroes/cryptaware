@@ -13,11 +13,18 @@ public class ProcessWatcher
 {
     private static ProcessWatcher pWatcher;
     private ManagementEventWatcher startWatch;
+    private NktSpyMgr spyMgr;
+
 
     public ProcessWatcher()
     {
         pWatcher = this;
         Init();
+
+        //Initialize spy manager
+        spyMgr = new NktSpyMgr();
+        spyMgr.Initialize();
+
     }
 
     public static ProcessWatcher GetInstance()
@@ -45,7 +52,7 @@ public class ProcessWatcher
     {
         Debug.WriteLine("Process started: {0}", e.NewEvent.Properties["ProcessId"].Value);
         Debug.WriteLine("Created " + e.NewEvent.Properties["ProcessName"].Value + " " + e.NewEvent.Properties["ProcessId"].Value + " " + "DateTime:" + DateTime.Now);
-        HookManager hm = new HookManager();
+        HookManager hm = new HookManager(ProcessWatcher.GetInstance().spyMgr);
         NktProcess createdProcess = hm.GetProcess(Convert.ToInt32(e.NewEvent.Properties["ProcessId"].Value));
         int status = hm.InstallHooks(createdProcess);
         if (status >= 0)
