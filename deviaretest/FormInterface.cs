@@ -44,6 +44,33 @@ namespace deviaretest
         }
 
 
+        //Thread safe UI update
+        public static void listViewAddItem(ListView varListView, string s)
+        {
+            ListViewItem item = new ListViewItem(s);
+            if (varListView.InvokeRequired)
+            {
+                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItem(varListView, s)));
+            }
+            else
+            {
+                varListView.Items.Add(item);
+            }
+        }
+
+        public static void listViewAddItemRange(ListView varListView, string s, string[] row)
+        {
+            ListViewItem item = new ListViewItem(s);
+            if (varListView.InvokeRequired)
+            {
+                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItemRange(varListView, s, row)));
+            }
+            else
+            {
+                varListView.Items.Add(item).SubItems.AddRange(row);
+            }
+        }
+
 
 
         private void MonitorNewProcessesButton_Click(object sender, EventArgs e)

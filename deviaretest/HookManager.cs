@@ -25,33 +25,6 @@ namespace deviaretest
 
         }
 
-        //Thread safe UI update
-        public static void listViewAddItem(ListView varListView, string s)
-        {
-            ListViewItem item = new ListViewItem(s);
-            if (varListView.InvokeRequired)
-            {
-                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItem(varListView, s)));
-            }
-            else
-            {
-                varListView.Items.Add(item);
-            }
-        }
-
-        public static void listViewAddItemRange(ListView varListView, string s, string[] row)
-        {
-            ListViewItem item = new ListViewItem(s);
-            if (varListView.InvokeRequired)
-            {
-                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItemRange(varListView, s, row)));
-            }
-            else
-            {
-                varListView.Items.Add(item).SubItems.AddRange(row);
-            }
-        }
-
 
 
         //Installs the required hooks and activates them and initialises intelligence
@@ -76,7 +49,7 @@ namespace deviaretest
                 if (UI.debugCheckBox.Checked)
                 {
                     //Display the new process on the UI
-                    listViewAddItem(UI.processListView, process.Name);
+                    FormInterface.listViewAddItem(UI.processListView, process.Name);
                 }
                 return 0;
             }
@@ -107,7 +80,7 @@ namespace deviaretest
             {
                 //Display call on the UI
                 string[] row = { proc.Name, DateTime.Now.ToString("h:mm:ss") };
-                listViewAddItemRange(UI.calledFListView, hook.FunctionName, row);
+                FormInterface.listViewAddItemRange(UI.calledFListView, hook.FunctionName, row);
             }
 
 
@@ -145,7 +118,7 @@ namespace deviaretest
                 intelligence.foundStartup();
                 if (UI.debugCheckBox.Checked)
                 {
-                    listViewAddItem(UI.signsListView, "Startup Install");
+                    FormInterface.listViewAddItem(UI.signsListView, "Startup Install");
                 }
             }
 
