@@ -1,4 +1,5 @@
-﻿using Nektra.Deviare2;
+﻿using deviaretest;
+using Nektra.Deviare2;
 using System;
 
 //One per process; determines if it is ransomware
@@ -6,7 +7,9 @@ class IntelliMod
 {
 
     private NktProcess process;
+    private FormInterface UI = FormInterface.GetInstance();
     private bool startup = false;
+    private int cryptAcquireContextC = 0;
     private int called = 0;
 
     public IntelliMod()
@@ -14,6 +17,7 @@ class IntelliMod
 
     }
 
+    //Following functions handle statistics for function calls
     public void foundStartup()
     {
         startup = true;
@@ -21,6 +25,14 @@ class IntelliMod
         evaluate();
 
     }
+
+    public void cryptAcquireContextF()
+    {
+        cryptAcquireContextC++;
+        evaluate();
+    }
+
+
 
     public void setProcess(NktProcess process)
     {
@@ -31,8 +43,17 @@ class IntelliMod
         }
     }
 
-    private bool evaluate()
+    private void evaluate()
     {
-        return startup;
+        if(cryptAcquireContextC>0)
+        {
+            //Display sign on the UI
+            if (UI.debugCheckBox.Checked)
+            {
+                FormInterface.listViewAddItem(UI.signsListView, "CryptAcquireContext call");
+            }
+        }
     }
+
+
 }

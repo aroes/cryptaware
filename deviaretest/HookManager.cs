@@ -25,32 +25,6 @@ namespace deviaretest
 
         }
 
-        //Thread safe UI update
-        public static void listViewAddItem(ListView varListView, string s)
-        {
-            ListViewItem item = new ListViewItem(s);
-            if (varListView.InvokeRequired)
-            {
-                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItem(varListView, s)));
-            }
-            else
-            {
-                varListView.Items.Add(item);
-            }
-        }
-
-        public static void listViewAddItemRange(ListView varListView, string s, string[] row)
-        {
-            ListViewItem item = new ListViewItem(s);
-            if (varListView.InvokeRequired)
-            {
-                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItemRange(varListView, s, row)));
-            }
-            else
-            {
-                varListView.Items.Add(item).SubItems.AddRange(row);
-            }
-        }
 
 
 
@@ -62,6 +36,8 @@ namespace deviaretest
                 Debug.WriteLine("Installing hooks in " + process.Name);
 
                 //Install each function hook
+
+                //InstallFunctionHook("kernel32.dll!CreateFileA", process);
                 //InstallFunctionHook("kernel32.dll!CreateFileW", process);
 
                 //InstallFunctionHook("advapi32.dll!RegOpenKeyExA", process);
@@ -70,13 +46,25 @@ namespace deviaretest
                 InstallFunctionHook("advapi32.dll!RegCreateKeyExA", process);
                 InstallFunctionHook("advapi32.dll!RegCreateKeyExW", process);
 
+                InstallFunctionHook("advapi32.dll!CryptAcquireContextA", process);
+                InstallFunctionHook("advapi32.dll!CryptAcquireContextW", process);
+
+                InstallFunctionHook("advapi32.dll!CryptImportKey", process);
+
+                InstallFunctionHook("advapi32.dll!CryptGenKey", process);
+
+                InstallFunctionHook("advapi32.dll!CryptEncrypt", process);
+
+                InstallFunctionHook("advapi32.dll!CryptExportKey", process);
+
+                InstallFunctionHook("advapi32.dll!CryptDestroyKey", process);
                 //Normally the intelligence module is specific to each process
                 intelligence.setProcess(process);
 
                 if (UI.debugCheckBox.Checked)
                 {
                     //Display the new process on the UI
-                    listViewAddItem(UI.processListView, process.Name);
+                    FormInterface.listViewAddItem(UI.processListView, process.Name);
                 }
                 return 0;
             }
@@ -107,7 +95,7 @@ namespace deviaretest
             {
                 //Display call on the UI
                 string[] row = { proc.Name, DateTime.Now.ToString("h:mm:ss") };
-                listViewAddItemRange(UI.calledFListView, hook.FunctionName, row);
+                FormInterface.listViewAddItemRange(UI.calledFListView, hook.FunctionName, row);
             }
 
 
@@ -130,6 +118,27 @@ namespace deviaretest
                     Debug.WriteLine("RegCreateKey " + callInfo.Params().GetAt(1).ReadString());
                     checkStartupInstallation(callInfo.Params().GetAt(1).ReadString());
                     break;
+                case "advapi32.dll!CryptAcquireContextA":
+                    cryptAcquireContextH();
+                    break;
+                case "advapi32.dll!CryptAcquireContextW":
+                    cryptAcquireContextH();
+                    break;
+                case "advapi32.dll!CryptImportKey":
+                    cryptImportKeyH();
+                    break;
+                case "advapi32.dll!CryptGenKey":
+                    cryptGenKeyH();
+                    break;
+                case "advapi32.dll!CryptEncrypt":
+                    cryptEncryptH();
+                    break;
+                case "advapi32.dll!CryptExportKey":
+                    cryptExportKeyH();
+                    break;
+                case "advapi32.dll!CryptDestroyKey":
+                    cryptDestroyKeyH();
+                    break;
                 default:
                     Debug.WriteLine("Something went wrong: the called function has no handler");
                     break;
@@ -138,14 +147,20 @@ namespace deviaretest
 
         }
 
+        private void cryptAcquireContextH()
+        {
+            intelligence.cryptAcquireContextF();
+        }
+
         private void checkStartupInstallation(string path)
         {
             if (path.Contains("Windows\\CurrentVersion\\Run") || path.Contains("Windows\\CurrentVersion\\RunOnce"))
             {
                 intelligence.foundStartup();
+                //Display sign on the UI
                 if (UI.debugCheckBox.Checked)
                 {
-                    listViewAddItem(UI.signsListView, "Startup Install");
+                    FormInterface.listViewAddItem(UI.signsListView, "Startup Install");
                 }
             }
 
