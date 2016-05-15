@@ -50,6 +50,7 @@ public class ProcessWatcher
         startWatch.Stop();
     }
 
+    //Executed at any process creation
     private static void startWatch_EventArrived(object sender, EventArrivedEventArgs e)
     {
         ManagementBaseObject obj = e.NewEvent["TargetInstance"] as ManagementBaseObject;

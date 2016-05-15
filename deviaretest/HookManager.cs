@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -28,7 +29,7 @@ namespace deviaretest
 
 
 
-        //Installs the required hooks and activates them and initialises intelligence
+        //Installs the required hooks and initialises intelligence
         public int InstallHooks(NktProcess process)
         {
             try
@@ -40,8 +41,6 @@ namespace deviaretest
                 //InstallFunctionHook("kernel32.dll!CreateFileA", process);
                 //InstallFunctionHook("kernel32.dll!CreateFileW", process);
 
-                //InstallFunctionHook("advapi32.dll!RegOpenKeyExA", process);
-                //InstallFunctionHook("advapi32.dll!RegOpenKeyExW", process);
 
                 InstallFunctionHook("advapi32.dll!RegCreateKeyExA", process);
                 InstallFunctionHook("advapi32.dll!RegCreateKeyExW", process);
@@ -99,72 +98,83 @@ namespace deviaretest
             }
 
 
-            switch (hook.FunctionName)
+            //Call the function specific handler from string
+            //1:Split function name to the right of '!' and add the handler tag
+            string mn = hook.FunctionName.Substring(hook.FunctionName.LastIndexOf('!') + 1) + 'H';
+            //2:Lowercase first letter
+            mn = Char.ToLowerInvariant(mn[0]) + mn.Substring(1);
+            //3:Invoke
+            try
             {
-                case "kernel32.dll!CreateFileW":
-                    Debug.WriteLine(DateTime.Now.ToString("h:mm:ss tt :: ") + "CreateFileW call in " + proc.Name + " intercepted");
-                    break;
-                case "advapi32.dll!RegOpenKeyExA":
-                    Debug.WriteLine("RegOpenKey " + callInfo.Params().GetAt(1).ReadString());
-                    break;
-                case "advapi32.dll!RegOpenKeyExW":
-                    Debug.WriteLine("RegOpenKey " + callInfo.Params().GetAt(1).ReadString());
-                    break;
-                case "advapi32.dll!RegCreateKeyExA":
-                    Debug.WriteLine("RegCreateKey " + callInfo.Params().GetAt(1).ReadString());
-                    checkStartupInstallation(callInfo.Params().GetAt(1).ReadString());
-                    break;
-                case "advapi32.dll!RegCreateKeyExW":
-                    Debug.WriteLine("RegCreateKey " + callInfo.Params().GetAt(1).ReadString());
-                    checkStartupInstallation(callInfo.Params().GetAt(1).ReadString());
-                    break;
-                case "advapi32.dll!CryptAcquireContextA":
-                    cryptAcquireContextH();
-                    break;
-                case "advapi32.dll!CryptAcquireContextW":
-                    cryptAcquireContextH();
-                    break;
-                case "advapi32.dll!CryptImportKey":
-                    cryptImportKeyH();
-                    break;
-                case "advapi32.dll!CryptGenKey":
-                    cryptGenKeyH();
-                    break;
-                case "advapi32.dll!CryptEncrypt":
-                    cryptEncryptH();
-                    break;
-                case "advapi32.dll!CryptExportKey":
-                    cryptExportKeyH();
-                    break;
-                case "advapi32.dll!CryptDestroyKey":
-                    cryptDestroyKeyH();
-                    break;
-                default:
-                    Debug.WriteLine("Something went wrong: the called function has no handler");
-                    break;
+                MethodInfo mi = this.GetType().GetMethod(mn, BindingFlags.Instance | BindingFlags.NonPublic);
+                Object[] funcParams = { callInfo };
+                mi.Invoke(this, funcParams);
             }
-
-
+            catch (NullReferenceException)
+            {
+                Debug.WriteLine(mn + " has no handler");
+            }
         }
 
-        private void cryptAcquireContextH()
+        //Send suspicious regCreateKeyEx calls to intelligence
+        private void regCreateKeyExAH(INktHookCallInfo callInfo)
         {
-            intelligence.cryptAcquireContextF();
+            regCreateKeyExH(callInfo);
         }
-
-        private void checkStartupInstallation(string path)
+        private void regCreateKeyExWH(INktHookCallInfo callInfo)
         {
+            regCreateKeyExH(callInfo);
+        }
+        private void regCreateKeyExH(INktHookCallInfo callInfo)
+        {
+            string path = callInfo.Params().GetAt(1).ReadString();
             if (path.Contains("Windows\\CurrentVersion\\Run") || path.Contains("Windows\\CurrentVersion\\RunOnce"))
             {
                 intelligence.foundStartup();
-                //Display sign on the UI
-                if (UI.debugCheckBox.Checked)
-                {
-                    FormInterface.listViewAddItem(UI.signsListView, "Startup Install");
-                }
+
             }
 
         }
+
+        //Send suspicious cryptAcquireContext calls to intelligence
+        private void cryptAcquireContextAH(INktHookCallInfo callInfo)
+        {
+            cryptAcquireContextH(callInfo);
+        }
+        private void cryptAcquireContextWH(INktHookCallInfo callInfo)
+        {
+            cryptAcquireContextH(callInfo);
+        }
+        private void cryptAcquireContextH(INktHookCallInfo callInfo)
+        {
+            intelligence.cryptAcquireContextS();
+        }
+
+        private void cryptImportKeyH(INktHookCallInfo callInfo)
+        {
+            intelligence.cryptImportKeyS();
+        }
+
+        private void cryptGenKeyH(INktHookCallInfo callInfo)
+        {
+            intelligence.cryptGenKeyS();
+        }
+
+        private void cryptEncryptH(INktHookCallInfo callInfo)
+        {
+            intelligence.cryptEncryptS();
+        }
+
+        private void cryptExportKeyH(INktHookCallInfo callInfo)
+        {
+            intelligence.cryptExportKeyS();
+        }
+
+        private void cryptDestroyKeyH(INktHookCallInfo callInfo)
+        {
+            intelligence.cryptDestroyKeyS();
+        }
+
 
         //Get NktProcess by name (maybe outdated method)
         public NktProcess GetProcess(string processName)
