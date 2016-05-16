@@ -8,6 +8,7 @@ class IntelliMod
     private int called = 0;
     private int processID;
     private FormInterface UI = FormInterface.GetInstance();
+    #region Number of calls
     private bool startup = false;
     private int cryptAcquireContextC = 0;
     private int cryptImportKeyC = 0;
@@ -15,14 +16,24 @@ class IntelliMod
     private int cryptEncryptC = 0;
     private int cryptExportKeyC = 0;
     private int cryptDestroyKeyC = 0;
-    //private int cryptGenRandomC = 0;
     private int getComputerNameC = 0;
     private int createRemoteThreadC = 0;
     private int firstFirstFileC = 0;
-
+    private int writeFileC = 0;
+    private int deleteFileC = 0;
+    #endregion
     public IntelliMod()
     {
 
+    }
+
+    //Considering all calls, determine if this process is malicious
+    private void evaluate()
+    {
+        if (cryptAcquireContextC > 0)
+        {
+
+        }
     }
 
     //Set process associated with this intelligence
@@ -36,7 +47,14 @@ class IntelliMod
         }
     }
 
+    private void searchMemory(string q)
+    {
+        MemoryScanner.scan(processID);
+    }
+
     //Following functions handle statistics for suspicious calls
+
+    #region Statistics gathering
     internal void foundStartup()
     {
         startup = true;
@@ -111,16 +129,6 @@ class IntelliMod
         }
     }
 
-    //internal void cryptGenRandomS()
-    //{
-    //    cryptGenRandomC++;
-    //    //Display sign on the UI
-    //    if (UI.debugCheckBox.Checked)
-    //    {
-    //        FormInterface.listViewAddItem(UI.signsListView, "Generated small random bit sequence");
-    //    }
-    //}
-
     internal void getComputerNameS()
     {
         getComputerNameC++;
@@ -131,14 +139,6 @@ class IntelliMod
         }
     }
 
-    //Considering all calls, determine if this process is malicious
-    private void evaluate()
-    {
-        if(cryptAcquireContextC>0)
-        {
-
-        }
-    }
     internal void createRemoteThreadS()
     {
         createRemoteThreadC++;
@@ -157,5 +157,27 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "Finding all files in directory");
         }
+        searchMemory("lul");
     }
+
+    internal void writeFileS()
+    {
+        writeFileC++;
+        //Display sign on the UI
+        if (UI.debugCheckBox.Checked)
+        {
+            FormInterface.listViewAddItem(UI.signsListView, "Writefile");
+        }
+    }
+
+    internal void deleteFileS()
+    {
+        deleteFileC++;
+        //Display sign on the UI
+        if (UI.debugCheckBox.Checked)
+        {
+            FormInterface.listViewAddItem(UI.signsListView, "Deletefile");
+        }
+    }
+    #endregion
 }

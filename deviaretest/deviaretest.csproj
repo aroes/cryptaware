@@ -105,9 +105,8 @@
     </Compile>
     <Compile Include="HookManager.cs" />
     <Compile Include="IntelliMod.cs" />
-    <Compile Include="ProcessWatcher.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="MemoryScanner.cs" />
+    <Compile Include="ProcessWatcher.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Win32_Process.CS">

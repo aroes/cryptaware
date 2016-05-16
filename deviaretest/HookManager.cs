@@ -13,10 +13,9 @@ namespace deviaretest
 {
     public class HookManager
     {
-        private NktSpyMgr spyMgr;
 
         private FormInterface UI;
-
+        private ProcessWatcher pw;
         private IntelliMod intelligence;
 
         //The process associated with this hookmanager
@@ -24,12 +23,12 @@ namespace deviaretest
         //The PID of the process associated with this hookmanager
         public int ID;
 
-        public HookManager(NktSpyMgr spyMgr, NktProcess process)
+        public HookManager(NktProcess process)
         {
-            this.spyMgr = spyMgr;
             this.process = process;
             this.ID = process.Id;
             this.UI = FormInterface.GetInstance();
+            this.pw = ProcessWatcher.GetInstance();
             intelligence = new IntelliMod();
             //spyMgr.OnFunctionCalled += new DNktSpyMgrEvents_OnFunctionCalledEventHandler(OnFunctionCalled);
         }
@@ -66,8 +65,6 @@ namespace deviaretest
 
                 InstallFunctionHook("advapi32.dll!CryptDestroyKey");
 
-                //InstallFunctionHook("advapi32.dll!CryptGenRandom");
-
                 InstallFunctionHook("kernel32.dll!GetComputerNameA");
                 InstallFunctionHook("kernel32.dll!GetComputerNameW");
                 InstallFunctionHook("kernel32.dll!GetComputerNameExA");
@@ -80,6 +77,8 @@ namespace deviaretest
                 InstallFunctionHook("kernel32.dll!FindFirstFileW");
                 InstallFunctionHook("kernel32.dll!FindFirstFileExA");
                 InstallFunctionHook("kernel32.dll!FindFirstFileExW");
+
+                InstallFunctionHook("kernel32.dll!WriteFile");
 
                 //Normally the intelligence module is specific to each process
                 intelligence.setProcess(process.Id);
@@ -102,7 +101,7 @@ namespace deviaretest
         {
             //Removed this flag eNktHookFlags.flgOnly32Bits
             //Create hook for the given function
-            NktHook hook = spyMgr.CreateHook(functionName, (int)eNktHookFlags.flgOnlyPreCall);
+            NktHook hook = pw.spyMgr.CreateHook(functionName, (int)eNktHookFlags.flgOnlyPreCall);
             //Event watcher
 
             //Activate the hook
@@ -176,14 +175,6 @@ namespace deviaretest
             intelligence.cryptDestroyKeyS();
         }
 
-        //private void cryptGenRandomH(INktHookCallInfo callInfo)
-        //{
-        //    if (callInfo.Params().GetAt(1).Value <= 16)
-        //    {
-        //        intelligence.cryptGenRandomS();
-        //    }
-        //}
-
         private void getComputerNameAH(INktHookCallInfo callInfo)
         {
             getComputerNameH(callInfo);
@@ -238,13 +229,31 @@ namespace deviaretest
                 intelligence.findFirstFileS();
             }
         }
+
+        private void writeFileH(INktHookCallInfo callInfo)
+        {
+            intelligence.writeFileS();
+        }
+
+        private void deleteFileAH(INktHookCallInfo callInfo)
+        {
+            deleteFileH(callInfo);
+        }
+        private void deleteFileWH(INktHookCallInfo callInfo)
+        {
+            deleteFileH(callInfo);
+        }
+        private void deleteFileH(INktHookCallInfo callInfo)
+        {
+            intelligence.deleteFileS();
+        }
         #endregion
 
 
         //Get NktProcess by name (maybe outdated method)
         public NktProcess GetProcess(string processName)
         {
-            NktProcessesEnum enumProcess = spyMgr.Processes();
+            NktProcessesEnum enumProcess = pw.spyMgr.Processes();
             NktProcess tempProcess = enumProcess.First();
             while (tempProcess != null)
             {
@@ -258,9 +267,9 @@ namespace deviaretest
         }
 
         //Get NktProcess by its PID (likely useless now)
-        public NktProcess GetProcess(int ID)
+        public static NktProcess GetProcess(int ID)
         {
-            NktProcessesEnum enumProcess = spyMgr.Processes();
+            NktProcessesEnum enumProcess = ProcessWatcher.GetInstance().spyMgr.Processes();
             NktProcess process = enumProcess.GetById(ID);
             if (process == null)
             {

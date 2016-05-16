@@ -15,7 +15,7 @@ using System.Collections.Generic;
 public class ProcessWatcher
 {
     private static ProcessWatcher pWatcher;
-    private NktSpyMgr spyMgr;
+    internal NktSpyMgr spyMgr;
     private FormInterface UI;
     private Dictionary<int,HookManager> hManagers;
     private ManualResetEvent shutdownDeviareEvent = new ManualResetEvent(false);
@@ -101,7 +101,7 @@ public class ProcessWatcher
     private void HandleStartedProcess(NktProcess createdProcess)
     {
         //int bits = createdProcess.PlatformBits;
-        HookManager hm = new HookManager(spyMgr, createdProcess);
+        HookManager hm = new HookManager(createdProcess);
         hManagers.Add(createdProcess.Id, hm);
         if (hm.InstallHooks() >= 0)
         {
