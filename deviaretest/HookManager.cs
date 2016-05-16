@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -18,19 +19,26 @@ namespace deviaretest
 
         private IntelliMod intelligence;
 
-        public HookManager(NktSpyMgr spyMgr)
+        //The process associated with this hookmanager
+        private NktProcess process;
+        //The PID of the process associated with this hookmanager
+        public int ID;
+
+        public HookManager(NktSpyMgr spyMgr, NktProcess process)
         {
             this.spyMgr = spyMgr;
+            this.process = process;
+            this.ID = process.Id;
             this.UI = FormInterface.GetInstance();
             intelligence = new IntelliMod();
-
+            //spyMgr.OnFunctionCalled += new DNktSpyMgrEvents_OnFunctionCalledEventHandler(OnFunctionCalled);
         }
 
 
 
 
         //Installs the required hooks and initialises intelligence
-        public int InstallHooks(NktProcess process)
+        public int InstallHooks()
         {
             try
             {
@@ -42,28 +50,44 @@ namespace deviaretest
                 //InstallFunctionHook("kernel32.dll!CreateFileW", process);
 
 
-                InstallFunctionHook("advapi32.dll!RegCreateKeyExA", process);
-                InstallFunctionHook("advapi32.dll!RegCreateKeyExW", process);
+                InstallFunctionHook("advapi32.dll!RegCreateKeyExA");
+                InstallFunctionHook("advapi32.dll!RegCreateKeyExW");
 
-                InstallFunctionHook("advapi32.dll!CryptAcquireContextA", process);
-                InstallFunctionHook("advapi32.dll!CryptAcquireContextW", process);
+                InstallFunctionHook("advapi32.dll!CryptAcquireContextA");
+                InstallFunctionHook("advapi32.dll!CryptAcquireContextW");
 
-                InstallFunctionHook("advapi32.dll!CryptImportKey", process);
+                InstallFunctionHook("advapi32.dll!CryptImportKey");
 
-                InstallFunctionHook("advapi32.dll!CryptGenKey", process);
+                InstallFunctionHook("advapi32.dll!CryptGenKey");
 
-                InstallFunctionHook("advapi32.dll!CryptEncrypt", process);
+                InstallFunctionHook("advapi32.dll!CryptEncrypt");
 
-                InstallFunctionHook("advapi32.dll!CryptExportKey", process);
+                InstallFunctionHook("advapi32.dll!CryptExportKey");
 
-                InstallFunctionHook("advapi32.dll!CryptDestroyKey", process);
+                InstallFunctionHook("advapi32.dll!CryptDestroyKey");
+
+                //InstallFunctionHook("advapi32.dll!CryptGenRandom");
+
+                InstallFunctionHook("kernel32.dll!GetComputerNameA");
+                InstallFunctionHook("kernel32.dll!GetComputerNameW");
+                InstallFunctionHook("kernel32.dll!GetComputerNameExA");
+                InstallFunctionHook("kernel32.dll!GetComputerNameExW");
+
+                InstallFunctionHook("kernel32.dll!CreateRemoteThread");
+                InstallFunctionHook("kernel32.dll!CreateRemoteThreadEx");
+
+                InstallFunctionHook("kernel32.dll!FindFirstFileA");
+                InstallFunctionHook("kernel32.dll!FindFirstFileW");
+                InstallFunctionHook("kernel32.dll!FindFirstFileExA");
+                InstallFunctionHook("kernel32.dll!FindFirstFileExW");
+
                 //Normally the intelligence module is specific to each process
-                intelligence.setProcess(process);
+                intelligence.setProcess(process.Id);
 
                 if (UI.debugCheckBox.Checked)
                 {
                     //Display the new process on the UI
-                    FormInterface.listViewAddItem(UI.processListView, process.Name);
+                    FormInterface.listViewAddItem(UI.processListView, process.Name + ' ' + process.PlatformBits);
                 }
                 return 0;
             }
@@ -74,49 +98,22 @@ namespace deviaretest
 
         }
 
-        private void InstallFunctionHook(string functionName, NktProcess process)
+        private void InstallFunctionHook(string functionName)
         {
-            // Removed this flag eNktHookFlags.flgOnly32Bits
+            //Removed this flag eNktHookFlags.flgOnly32Bits
             //Create hook for the given function
             NktHook hook = spyMgr.CreateHook(functionName, (int)eNktHookFlags.flgOnlyPreCall);
             //Event watcher
-            spyMgr.OnFunctionCalled += new DNktSpyMgrEvents_OnFunctionCalledEventHandler(OnFunctionCalled);
+
             //Activate the hook
             hook.Hook(true);
             hook.Attach(process, true);
         }
 
 
-        //When a hooked function executes
-        void OnFunctionCalled(NktHook hook, INktProcess proc, INktHookCallInfo callInfo)
-        {
-            if (UI.debugCheckBox.Checked)
-            {
-                //Display call on the UI
-                string[] row = { proc.Name, DateTime.Now.ToString("h:mm:ss") };
-                FormInterface.listViewAddItemRange(UI.calledFListView, hook.FunctionName, row);
-            }
+        #region Function call handlers
 
-
-            //Call the function specific handler from string
-            //1:Split function name to the right of '!' and add the handler tag
-            string mn = hook.FunctionName.Substring(hook.FunctionName.LastIndexOf('!') + 1) + 'H';
-            //2:Lowercase first letter
-            mn = Char.ToLowerInvariant(mn[0]) + mn.Substring(1);
-            //3:Invoke
-            try
-            {
-                MethodInfo mi = this.GetType().GetMethod(mn, BindingFlags.Instance | BindingFlags.NonPublic);
-                Object[] funcParams = { callInfo };
-                mi.Invoke(this, funcParams);
-            }
-            catch (NullReferenceException)
-            {
-                Debug.WriteLine(mn + " has no handler");
-            }
-        }
-
-        //Send suspicious regCreateKeyEx calls to intelligence
+        //Send suspicious ... calls to intelligence
         private void regCreateKeyExAH(INktHookCallInfo callInfo)
         {
             regCreateKeyExH(callInfo);
@@ -136,7 +133,7 @@ namespace deviaretest
 
         }
 
-        //Send suspicious cryptAcquireContext calls to intelligence
+        //Send suspicious ... calls to intelligence
         private void cryptAcquireContextAH(INktHookCallInfo callInfo)
         {
             cryptAcquireContextH(callInfo);
@@ -147,7 +144,11 @@ namespace deviaretest
         }
         private void cryptAcquireContextH(INktHookCallInfo callInfo)
         {
-            intelligence.cryptAcquireContextS();
+            string csp = callInfo.Params().GetAt(2).Value;
+            if (csp.Contains("Microsoft Enhanced RSA and AES Cryptographic Provider"))
+            {
+                intelligence.cryptAcquireContextS();
+            }
         }
 
         private void cryptImportKeyH(INktHookCallInfo callInfo)
@@ -175,6 +176,70 @@ namespace deviaretest
             intelligence.cryptDestroyKeyS();
         }
 
+        //private void cryptGenRandomH(INktHookCallInfo callInfo)
+        //{
+        //    if (callInfo.Params().GetAt(1).Value <= 16)
+        //    {
+        //        intelligence.cryptGenRandomS();
+        //    }
+        //}
+
+        private void getComputerNameAH(INktHookCallInfo callInfo)
+        {
+            getComputerNameH(callInfo);
+        }
+        private void getComputerNameWH(INktHookCallInfo callInfo)
+        {
+            getComputerNameH(callInfo);
+        }
+        private void getComputerNameExAH(INktHookCallInfo callInfo)
+        {
+            getComputerNameH(callInfo);
+        }
+        private void getComputerNameExWH(INktHookCallInfo callInfo)
+        {
+            getComputerNameH(callInfo);
+        }
+        private void getComputerNameH(INktHookCallInfo callInfo)
+        {
+            intelligence.getComputerNameS();
+        }
+
+        private void createRemoteThreadH(INktHookCallInfo callInfo)
+        {
+            intelligence.createRemoteThreadS();
+        }
+        private void createRemoteThreadExH(INktHookCallInfo callInfo)
+        {
+            createRemoteThreadH(callInfo);
+        }
+
+        private void findFirstFileAH(INktHookCallInfo callInfo)
+        {
+            findFirstFileH(callInfo);
+        }
+        private void findFirstFileWH(INktHookCallInfo callInfo)
+        {
+            findFirstFileH(callInfo);
+        }
+        private void findFirstFileExAH(INktHookCallInfo callInfo)
+        {
+            findFirstFileH(callInfo);
+        }
+        private void findFirstFileExWH(INktHookCallInfo callInfo)
+        {
+            findFirstFileH(callInfo);
+        }
+        private void findFirstFileH(INktHookCallInfo callInfo)
+        {
+            string path = callInfo.Params().GetAt(0).Value;
+            if (path.EndsWith("*"))
+            {
+                intelligence.findFirstFileS();
+            }
+        }
+        #endregion
+
 
         //Get NktProcess by name (maybe outdated method)
         public NktProcess GetProcess(string processName)
@@ -192,7 +257,7 @@ namespace deviaretest
             return null;
         }
 
-        //Get NktProcess by its PID
+        //Get NktProcess by its PID (likely useless now)
         public NktProcess GetProcess(int ID)
         {
             NktProcessesEnum enumProcess = spyMgr.Processes();

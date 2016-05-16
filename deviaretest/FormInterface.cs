@@ -26,7 +26,7 @@ namespace deviaretest
 
             //Initialize process creation watcher
             procWatcher = new ProcessWatcher();
-            //procWatcher.ProcessCreated += new WMI.Win32.ProcessEventHandler(WMI.Win32.ProcessWatcher.procWatcher_ProcessCreated);
+            
 
         }
 
@@ -77,7 +77,7 @@ namespace deviaretest
             MonitorNewProcessesButton.Enabled = false;
 
 
-            procWatcher.Start();
+            //procWatcher.Start();
             StopMonitorButton.Enabled = true;
 
         }
@@ -87,7 +87,7 @@ namespace deviaretest
             StopMonitorButton.Enabled = false;
 
 
-            procWatcher.Stop();
+            //procWatcher.Stop();
             MonitorNewProcessesButton.Enabled = true;
         }
     }

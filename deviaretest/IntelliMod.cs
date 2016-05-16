@@ -6,7 +6,7 @@ using System;
 class IntelliMod
 {
     private int called = 0;
-    private NktProcess process;
+    private int processID;
     private FormInterface UI = FormInterface.GetInstance();
     private bool startup = false;
     private int cryptAcquireContextC = 0;
@@ -15,9 +15,10 @@ class IntelliMod
     private int cryptEncryptC = 0;
     private int cryptExportKeyC = 0;
     private int cryptDestroyKeyC = 0;
-
-
-
+    //private int cryptGenRandomC = 0;
+    private int getComputerNameC = 0;
+    private int createRemoteThreadC = 0;
+    private int firstFirstFileC = 0;
 
     public IntelliMod()
     {
@@ -25,9 +26,9 @@ class IntelliMod
     }
 
     //Set process associated with this intelligence
-    public void setProcess(NktProcess process)
+    public void setProcess(int processID)
     {
-        this.process = process;
+        this.processID = processID;
         called++;
         if (called > 1)
         {
@@ -55,7 +56,7 @@ class IntelliMod
         //Display sign on the UI
         if (UI.debugCheckBox.Checked)
         {
-            FormInterface.listViewAddItem(UI.signsListView, "CryptAcquireContext call");
+            FormInterface.listViewAddItem(UI.signsListView, "Acquired enhanced AES and RSA context");
         }
         evaluate();
     }
@@ -110,6 +111,26 @@ class IntelliMod
         }
     }
 
+    //internal void cryptGenRandomS()
+    //{
+    //    cryptGenRandomC++;
+    //    //Display sign on the UI
+    //    if (UI.debugCheckBox.Checked)
+    //    {
+    //        FormInterface.listViewAddItem(UI.signsListView, "Generated small random bit sequence");
+    //    }
+    //}
+
+    internal void getComputerNameS()
+    {
+        getComputerNameC++;
+        //Display sign on the UI
+        if (UI.debugCheckBox.Checked)
+        {
+            FormInterface.listViewAddItem(UI.signsListView, "Collection of PC Name");
+        }
+    }
+
     //Considering all calls, determine if this process is malicious
     private void evaluate()
     {
@@ -118,6 +139,23 @@ class IntelliMod
 
         }
     }
+    internal void createRemoteThreadS()
+    {
+        createRemoteThreadC++;
+        //Display sign on the UI
+        if (UI.debugCheckBox.Checked)
+        {
+            FormInterface.listViewAddItem(UI.signsListView, "CreateRemoteThread: possible process injection");
+        }
+    }
 
-
+    internal void findFirstFileS()
+    {
+        firstFirstFileC++;
+        //Display sign on the UI
+        if (UI.debugCheckBox.Checked)
+        {
+            FormInterface.listViewAddItem(UI.signsListView, "Finding all files in directory");
+        }
+    }
 }

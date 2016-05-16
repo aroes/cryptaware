@@ -45,7 +45,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		pszPassword = argv[3];
 	}
 
-	Sleep(10000);
+	Sleep(1000);
+
 	//---------------------------------------------------------------
 	// Call EncryptFile to do the actual encryption.
 	if (MyEncryptFile(pszSource, pszDestination, pszPassword))
@@ -99,6 +100,7 @@ bool MyEncryptFile(
 	DWORD dwBlockLen;
 	DWORD dwBufferLen;
 	DWORD dwCount;
+	BYTE         pbData[50];
 
 	//---------------------------------------------------------------
 	// Open the source file. 
@@ -167,6 +169,38 @@ bool MyEncryptFile(
 			GetLastError());
 		goto Exit_MyEncryptFile;
 	}
+
+
+	//CryptGenRandom small
+
+	if (CryptGenRandom(
+		hCryptProv,
+		8,
+		pbData))
+	{
+		printf("Small random sequence generated. \n");
+	}
+	else
+	{
+		printf("Error during CryptGenRandom.\n");
+		exit(1);
+	}
+
+	//CryptGenRandom big
+
+	if (CryptGenRandom(
+		hCryptProv,
+		18,
+		pbData))
+	{
+		printf("Big random sequence generated. \n");
+	}
+	else
+	{
+		printf("Error during CryptGenRandom.\n");
+		exit(1);
+	}
+
 
 	//---------------------------------------------------------------
 	// Create the session key.
