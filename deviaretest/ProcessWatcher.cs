@@ -10,6 +10,7 @@ using System.IO;
 
 public class ProcessWatcher
 {
+
     private static ProcessWatcher pWatcher;
     internal NktSpyMgr spyMgr;
     private FormInterface UI;
@@ -22,12 +23,11 @@ public class ProcessWatcher
     {
         pWatcher = this;
         this.UI = FormInterface.GetInstance();
-        InitPWatch();
         //Initialize spy manager
         spyMgr = new NktSpyMgr();
+        spyMgr.Initialize();
         //Keeps all the hookmanagers with their process IDs
         hManagers = new Dictionary<int, HookManager>();
-        StartDeviareWorker();
 
     }
 
@@ -35,72 +35,33 @@ public class ProcessWatcher
     {
         return pWatcher;
     }
-    public Action<INktProcess> ProcessStartedHandler { get; set; }
+  
 
-    private void InitPWatch()
+    public void StartService()
     {
-        ProcessStartedHandler = process => { };
-    }
-    private void StartDeviareWorker()
-    {
-        deviareWorker = new Thread(StartDeviare);
-        deviareWorker.SetApartmentState(ApartmentState.MTA);
-        deviareWorker.Name = "Deviare API Thread";
-        deviareWorker.Start();
-
-        deviareInitializedEvent.WaitOne();
-    }
-
-    private void StartDeviare()
-    {
-        Start();
-        WaitForShutdownRequest();
-        Stop();
-    }
-
-    private void Start()
-    {
-        spyMgr.Initialize();
-
         spyMgr.OnProcessStarted += HandleStartedProcess;
         spyMgr.OnProcessTerminated += HandleTerminatedProcess;
         spyMgr.OnFunctionCalled += OnFunctionCalled;
 
-
-
-        deviareInitializedEvent.Set();
     }
 
-    private void WaitForShutdownRequest()
-    {
-        shutdownDeviareEvent.WaitOne();
-    }
 
-    private void Stop()
+    public void Stop()
     {
         spyMgr.OnProcessStarted -= HandleStartedProcess;
         spyMgr.OnProcessTerminated -= HandleTerminatedProcess;
         spyMgr.OnFunctionCalled -= OnFunctionCalled;
 
-
-        try
-        {
-            Marshal.ReleaseComObject(spyMgr);
-        }
-        catch
-        {
-
-        }
     }
 
     [DllImport("kernel32.dll")]
     static extern IntPtr OpenThread(uint dwDesiredAccess, bool bInheritHandle, uint dwThreadId);
-
     [DllImport("kernel32.dll")]
     static extern uint SuspendThread(IntPtr hThread);
     [DllImport("kernel32.dll")]
     static extern uint ResumeThread(IntPtr hThread);
 
+    [MTAThread]
     private void HandleStartedProcess(NktProcess createdProcess)
     {
         //Restrict hooking to 32 bit processes; possible 64 bit support later
@@ -132,6 +93,7 @@ public class ProcessWatcher
         }
     }
 
+    [MTAThread]
     private void HandleTerminatedProcess(NktProcess terminatedProcess)
     {
         hManagers.Remove(terminatedProcess.Id);
@@ -139,6 +101,7 @@ public class ProcessWatcher
         Debug.WriteLine("Terminated " + terminatedProcess.Name + ' ' + terminatedProcess.Id + " DateTime:" + DateTime.Now);
     }
 
+    [MTAThread]
     //When a hooked function executes
     private void OnFunctionCalled(NktHook hook, INktProcess proc, INktHookCallInfo callInfo)
     {

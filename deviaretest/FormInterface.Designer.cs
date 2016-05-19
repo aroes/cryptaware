@@ -28,8 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.MonitorNewProcessesButton = new System.Windows.Forms.Button();
-            this.StopMonitorButton = new System.Windows.Forms.Button();
+            this.startServiceButton = new System.Windows.Forms.Button();
             this.processListView = new System.Windows.Forms.ListView();
             this.caProcess = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.label1 = new System.Windows.Forms.Label();
@@ -42,27 +41,16 @@
             this.signsListView = new System.Windows.Forms.ListView();
             this.SuspendLayout();
             // 
-            // MonitorNewProcessesButton
+            // startServiceButton
             // 
-            this.MonitorNewProcessesButton.BackColor = System.Drawing.SystemColors.Control;
-            this.MonitorNewProcessesButton.Location = new System.Drawing.Point(60, 63);
-            this.MonitorNewProcessesButton.Name = "MonitorNewProcessesButton";
-            this.MonitorNewProcessesButton.Size = new System.Drawing.Size(162, 57);
-            this.MonitorNewProcessesButton.TabIndex = 0;
-            this.MonitorNewProcessesButton.Text = "Monitor new processes";
-            this.MonitorNewProcessesButton.UseVisualStyleBackColor = false;
-            this.MonitorNewProcessesButton.Click += new System.EventHandler(this.MonitorNewProcessesButton_Click);
-            // 
-            // StopMonitorButton
-            // 
-            this.StopMonitorButton.Enabled = false;
-            this.StopMonitorButton.Location = new System.Drawing.Point(74, 165);
-            this.StopMonitorButton.Name = "StopMonitorButton";
-            this.StopMonitorButton.Size = new System.Drawing.Size(130, 50);
-            this.StopMonitorButton.TabIndex = 1;
-            this.StopMonitorButton.Text = "Stop monitoring";
-            this.StopMonitorButton.UseVisualStyleBackColor = true;
-            this.StopMonitorButton.Click += new System.EventHandler(this.StopMonitorButton_Click);
+            this.startServiceButton.BackColor = System.Drawing.SystemColors.Control;
+            this.startServiceButton.Location = new System.Drawing.Point(60, 63);
+            this.startServiceButton.Name = "startServiceButton";
+            this.startServiceButton.Size = new System.Drawing.Size(162, 57);
+            this.startServiceButton.TabIndex = 0;
+            this.startServiceButton.Text = "Start CryptAware service";
+            this.startServiceButton.UseVisualStyleBackColor = false;
+            this.startServiceButton.Click += new System.EventHandler(this.startServiceButton_Click);
             // 
             // processListView
             // 
@@ -171,8 +159,7 @@
             this.Controls.Add(this.calledFListView);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.processListView);
-            this.Controls.Add(this.StopMonitorButton);
-            this.Controls.Add(this.MonitorNewProcessesButton);
+            this.Controls.Add(this.startServiceButton);
             this.Name = "FormInterface";
             this.Text = "Cryptaware";
             this.Load += new System.EventHandler(this.FormInterface_Load);
@@ -183,8 +170,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Button MonitorNewProcessesButton;
-        private System.Windows.Forms.Button StopMonitorButton;
+        private System.Windows.Forms.Button startServiceButton;
         public System.Windows.Forms.ListView processListView;
         private System.Windows.Forms.Label label1;
         public System.Windows.Forms.ListView calledFListView;

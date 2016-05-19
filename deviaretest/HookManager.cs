@@ -29,8 +29,7 @@ namespace deviaretest
             this.ID = process.Id;
             this.UI = FormInterface.GetInstance();
             this.pw = ProcessWatcher.GetInstance();
-            intelligence = new IntelliMod();
-            //spyMgr.OnFunctionCalled += new DNktSpyMgrEvents_OnFunctionCalledEventHandler(OnFunctionCalled);
+            intelligence = new IntelliMod(process);
         }
 
 
@@ -80,8 +79,6 @@ namespace deviaretest
 
                 InstallFunctionHook("kernel32.dll!WriteFile");
 
-                //Normally the intelligence module is specific to each process
-                intelligence.setProcess(process.Id);
 
                 if (UI.debugCheckBox.Checked)
                 {

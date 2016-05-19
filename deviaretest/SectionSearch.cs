@@ -14,6 +14,7 @@ class SectionSearch
 
     private NktProcess p;
     private bool searchDotTextSection;
+    private Object fileLock = new Object();
 
 
     public SectionSearch(NktProcess p, bool searchDotTextSection)
@@ -22,19 +23,26 @@ class SectionSearch
         this.searchDotTextSection = searchDotTextSection;
     }
 
-
+    private void setDeepSearch()
+    {
+        searchDotTextSection = true;
+    }
 
     //Searches for the query string in the process memory, written to a file
     public bool containsString(string query, bool refresh)
     {
         string filename = p.Id.ToString() + ".mca";
-        if (refresh || !File.Exists(filename))
+        lock (fileLock)
         {
-            getSections();
+            if (refresh || !File.Exists(filename))
+            {
+                getSections();
+            }
+            bool foundA = File.ReadAllText(filename, Encoding.ASCII).Contains(query, StringComparison.OrdinalIgnoreCase);
+            bool foundU = File.ReadAllText(filename, Encoding.Unicode).Contains(query, StringComparison.OrdinalIgnoreCase);
+
+            return foundA || foundU;
         }
-        bool foundA = File.ReadAllText(filename, Encoding.ASCII).Contains(query, StringComparison.OrdinalIgnoreCase);
-        bool foundU = File.ReadAllText(filename, Encoding.Unicode).Contains(query, StringComparison.OrdinalIgnoreCase);
-        return foundA || foundU;
     }
     //Creates a file with the process memory (Does NOT handle deleting, take care of it elsewhere!)
     private void getSections()

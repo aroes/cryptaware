@@ -72,23 +72,13 @@ namespace deviaretest
         }
 
 
-        private void MonitorNewProcessesButton_Click(object sender, EventArgs e)
+        private void startServiceButton_Click(object sender, EventArgs e)
         {
-            MonitorNewProcessesButton.Enabled = false;
-
-
-            //procWatcher.Start();
-            StopMonitorButton.Enabled = true;
+            startServiceButton.Enabled = false;
+            procWatcher.StartService();
 
         }
 
-        private void StopMonitorButton_Click(object sender, EventArgs e)
-        {
-            StopMonitorButton.Enabled = false;
 
-
-            //procWatcher.Stop();
-            MonitorNewProcessesButton.Enabled = true;
-        }
     }
 }
