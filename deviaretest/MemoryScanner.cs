@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 
 public class MemoryScanner
 {
@@ -10,6 +11,7 @@ public class MemoryScanner
     const int PROCESS_QUERY_INFORMATION = 0x0400;
     const int MEM_COMMIT = 0x00001000;
     const int PAGE_READWRITE = 0x04;
+    const int PAGE_READONLY = 0x02;
     const int PROCESS_WM_READ = 0x0010;
 
 
@@ -79,7 +81,7 @@ public class MemoryScanner
         // opening the process with desired access level
         IntPtr processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_WM_READ, false, process.Id);
 
-        StreamWriter sw = new StreamWriter("dump.txt");
+        BinaryWriter bw = new BinaryWriter(File.Open("dump.txt", FileMode.Create));
 
         // this will store any information we get from VirtualQueryEx()
         MEMORY_BASIC_INFORMATION mem_basic_info = new MEMORY_BASIC_INFORMATION();
@@ -92,7 +94,7 @@ public class MemoryScanner
             VirtualQueryEx(processHandle, proc_min_address, out mem_basic_info, 28);
 
             // if this memory chunk is accessible
-            if (mem_basic_info.Protect == PAGE_READWRITE && mem_basic_info.State == MEM_COMMIT)
+            if (mem_basic_info.Protect <= PAGE_READWRITE && mem_basic_info.State == MEM_COMMIT)
             {
                 byte[] buffer = new byte[mem_basic_info.RegionSize];
 
@@ -101,7 +103,7 @@ public class MemoryScanner
 
                 // then output this in the file
                 for (int i = 0; i < mem_basic_info.RegionSize; i++)
-                    sw.WriteLine("0x{0} : {1}", (mem_basic_info.BaseAddress + i).ToString("X"), (char)buffer[i]);
+                    bw.Write((char)buffer[i]);
             }
 
             // move to the next memory chunk
@@ -109,6 +111,6 @@ public class MemoryScanner
             proc_min_address = new IntPtr(proc_min_address_l);
         }
 
-        sw.Close();
+        bw.Close();
     }
 }

@@ -45,7 +45,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		pszPassword = argv[3];
 	}
 
-	Sleep(1000);
+	Sleep(1500);
 
 	//---------------------------------------------------------------
 	// Call EncryptFile to do the actual encryption.

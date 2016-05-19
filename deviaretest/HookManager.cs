@@ -37,7 +37,7 @@ namespace deviaretest
 
 
         //Installs the required hooks and initialises intelligence
-        public int InstallHooks()
+        public void InstallHooks()
         {
             try
             {
@@ -88,11 +88,11 @@ namespace deviaretest
                     //Display the new process on the UI
                     FormInterface.listViewAddItem(UI.processListView, process.Name + ' ' + process.PlatformBits);
                 }
-                return 0;
+                Debug.WriteLine("Success");
             }
             catch (NullReferenceException)
             {
-                return -1;
+                Debug.WriteLine("Hooking failed: Process no longer exists");
             }
 
         }

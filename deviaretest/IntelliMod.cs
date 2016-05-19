@@ -1,6 +1,8 @@
 ﻿using deviaretest;
 using Nektra.Deviare2;
 using System;
+using System.IO;
+using System.Runtime.InteropServices;
 
 //One per process; determines if it is ransomware
 class IntelliMod
@@ -8,6 +10,33 @@ class IntelliMod
     private int called = 0;
     private int processID;
     private FormInterface UI = FormInterface.GetInstance();
+    private int lastScan = 0;
+    private static string[] suspiciousStrings = {"encrypted",
+        "aes",
+        "rsa",
+        "payment",
+        "pay",
+        "bitcoin",
+        "moneypak",
+        "ransom",
+        "vssadmin",
+        "protected",
+        "restore",
+        "tor",
+        "sample music",
+        "pdf",
+        "jpg",
+        "docx",
+        "mp3",
+        "asm",
+        "pif",
+        "msp",
+        "hta",
+        "cpl",
+        "msc",
+        "scf",
+        "msi"};
+
     #region Number of calls
     private bool startup = false;
     private int cryptAcquireContextC = 0;
@@ -47,9 +76,42 @@ class IntelliMod
         }
     }
 
-    private void searchMemory(string q)
+    private void scanForSuspiciousStrings()
     {
-        MemoryScanner.scan(processID);
+        int now = Environment.TickCount;
+        //Only rescan if the last scan was >15 seconds ago
+        if (now - lastScan > 15000)
+        {
+            //Special case for first string: refresh memory dump
+            //If string found display sign on the UI
+            if (UI.debugCheckBox.Checked && searchMemory(suspiciousStrings[0], true))
+            {
+                FormInterface.listViewAddItem(UI.signsListView, "String:" + suspiciousStrings[0]);
+            }
+            //Continue through the list of suspicious strings
+            for (int i = 1; i < suspiciousStrings.Length; i++)
+            {
+                if (UI.debugCheckBox.Checked && searchMemory(suspiciousStrings[i]))
+                {
+                    FormInterface.listViewAddItem(UI.signsListView, "String:" + suspiciousStrings[i]);
+                }
+            }
+            //Update last scan time
+            lastScan = now;
+        }
+    }
+
+    //Refresh the memory dump file and search it
+    private bool searchMemory(string query, bool refresh)
+    {
+        NktProcess p = HookManager.GetProcess(processID);
+        return new SectionSearch(p, false).containsString(query, refresh);
+    }
+    //Search the memory, does not create a dump file if it is already present
+    private bool searchMemory(string query)
+    {
+        NktProcess p = HookManager.GetProcess(processID);
+        return new SectionSearch(p, false).containsString(query, false);
     }
 
     //Following functions handle statistics for suspicious calls
@@ -118,7 +180,7 @@ class IntelliMod
             FormInterface.listViewAddItem(UI.signsListView, "CryptExportKey call");
         }
     }
-
+    //
     internal void cryptDestroyKeyS()
     {
         cryptDestroyKeyC++;
@@ -127,6 +189,7 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "CryptDestroyKey call");
         }
+        scanForSuspiciousStrings();
     }
 
     internal void getComputerNameS()
@@ -138,7 +201,7 @@ class IntelliMod
             FormInterface.listViewAddItem(UI.signsListView, "Collection of PC Name");
         }
     }
-
+    //
     internal void createRemoteThreadS()
     {
         createRemoteThreadC++;
@@ -147,6 +210,7 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "CreateRemoteThread: possible process injection");
         }
+        scanForSuspiciousStrings();
     }
 
     internal void findFirstFileS()
@@ -157,7 +221,7 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "Finding all files in directory");
         }
-        searchMemory("lul");
+
     }
 
     internal void writeFileS()

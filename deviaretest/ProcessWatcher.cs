@@ -1,23 +1,19 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Collections;
-using System.Globalization;
-using System.Management;
 using System.Diagnostics;
 using deviaretest;
 using Nektra.Deviare2;
-using static deviaretest.HookManager;
 using System.Threading;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Collections.Generic;
+using System.IO;
 
 public class ProcessWatcher
 {
     private static ProcessWatcher pWatcher;
     internal NktSpyMgr spyMgr;
     private FormInterface UI;
-    private Dictionary<int,HookManager> hManagers;
+    private Dictionary<int, HookManager> hManagers;
     private ManualResetEvent shutdownDeviareEvent = new ManualResetEvent(false);
     private ManualResetEvent deviareInitializedEvent = new ManualResetEvent(false);
     private Thread deviareWorker;
@@ -69,7 +65,7 @@ public class ProcessWatcher
         spyMgr.OnProcessStarted += HandleStartedProcess;
         spyMgr.OnProcessTerminated += HandleTerminatedProcess;
         spyMgr.OnFunctionCalled += OnFunctionCalled;
-        
+
 
 
         deviareInitializedEvent.Set();
@@ -97,27 +93,49 @@ public class ProcessWatcher
         }
     }
 
+    [DllImport("kernel32.dll")]
+    static extern IntPtr OpenThread(uint dwDesiredAccess, bool bInheritHandle, uint dwThreadId);
+
+    [DllImport("kernel32.dll")]
+    static extern uint SuspendThread(IntPtr hThread);
+    [DllImport("kernel32.dll")]
+    static extern uint ResumeThread(IntPtr hThread);
 
     private void HandleStartedProcess(NktProcess createdProcess)
     {
-        //int bits = createdProcess.PlatformBits;
-        HookManager hm = new HookManager(createdProcess);
-        hManagers.Add(createdProcess.Id, hm);
-        if (hm.InstallHooks() >= 0)
+        //Restrict hooking to 32 bit processes; possible 64 bit support later
+        if (createdProcess.PlatformBits == 32)
         {
-            Debug.WriteLine("Success");
+            //Get all of the process's threads
+            ProcessThreadCollection threads = Process.GetProcessById(createdProcess.Id).Threads;
+            //This list will hold all the handles to the opened threads
+            List<IntPtr> threadHandles = new List<IntPtr>();
+            //Suspend all threads and populate the handle list
+            foreach (ProcessThread t in threads)
+            {
+                IntPtr hThread = OpenThread(0, false, (uint)t.Id);
+                SuspendThread(hThread);
+                threadHandles.Add(hThread);
+            }
+            //Make a new hookmanager for the process
+            HookManager hm = new HookManager(createdProcess);
+            //Add it to the list of hookmanagers
+            hManagers.Add(createdProcess.Id, hm);
+            //Install hooks
+            hm.InstallHooks();
+            //Resume all threads
+            foreach (IntPtr hThread in threadHandles)
+            {
+                ResumeThread(hThread);
+            }
+            Debug.WriteLine("Hooked " + createdProcess.Name + ' ' + createdProcess.Id + " DateTime:" + DateTime.Now);
         }
-        else
-        {
-            Debug.WriteLine("Hooking failed: Process no longer exists");
-        }
-
-        Debug.WriteLine("Created " + createdProcess.Name + ' ' + createdProcess.Id + " DateTime:" + DateTime.Now);
     }
 
     private void HandleTerminatedProcess(NktProcess terminatedProcess)
     {
         hManagers.Remove(terminatedProcess.Id);
+        File.Delete(terminatedProcess.Id.ToString() + ".mca");
         Debug.WriteLine("Terminated " + terminatedProcess.Name + ' ' + terminatedProcess.Id + " DateTime:" + DateTime.Now);
     }
 
