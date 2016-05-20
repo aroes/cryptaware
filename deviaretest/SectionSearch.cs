@@ -14,6 +14,7 @@ class SectionSearch
 
     private NktProcess p;
     private bool searchDotTextSection;
+    private bool doNotRescan = false;
     private Object fileLock = new Object();
 
 
@@ -34,14 +35,25 @@ class SectionSearch
         string filename = p.Id.ToString() + ".mca";
         lock (fileLock)
         {
-            if (refresh || !File.Exists(filename))
+            //If asked to refresh or the scan has never been done make a new file, unless doNotRescan is set
+            if ((refresh || !File.Exists(filename)) && !doNotRescan)
             {
                 getSections();
             }
+            //If the memdump file is small enough scan for the query
+            // long maxMemDumpSize = 104857600;
+            //  if (new FileInfo(filename).Length < maxMemDumpSize)
+            //   {
             bool foundA = File.ReadAllText(filename, Encoding.ASCII).Contains(query, StringComparison.OrdinalIgnoreCase);
             bool foundU = File.ReadAllText(filename, Encoding.Unicode).Contains(query, StringComparison.OrdinalIgnoreCase);
-
             return foundA || foundU;
+            //   }
+            //If it is too large it is not ransomware; Skip check and do not rescan
+            //    else
+            //    {
+            //         doNotRescan = true;
+            //         return false;
+            //   }
         }
     }
     //Creates a file with the process memory (Does NOT handle deleting, take care of it elsewhere!)

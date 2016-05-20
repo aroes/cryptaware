@@ -64,8 +64,11 @@ public class ProcessWatcher
     [MTAThread]
     private void HandleStartedProcess(NktProcess createdProcess)
     {
-        //Restrict hooking to 32 bit processes; possible 64 bit support later
-        if (createdProcess.PlatformBits == 32)
+        int maxImageSize = 15728640;
+        //Restrict hooking to 32 bit processes; possible 64 bit support later. 
+        //AND ignore if size >15mb (all ransomware is small; even injected processes, explorer and svchost are <15mb)
+        long imageSize = new FileInfo(createdProcess.Path).Length;
+        if (createdProcess.PlatformBits == 32 && imageSize < maxImageSize)
         {
             //Get all of the process's threads
             ProcessThreadCollection threads = Process.GetProcessById(createdProcess.Id).Threads;

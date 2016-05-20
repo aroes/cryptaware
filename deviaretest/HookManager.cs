@@ -35,7 +35,7 @@ namespace deviaretest
 
 
 
-        //Installs the required hooks and initialises intelligence
+        //Installs the required hooks
         public void InstallHooks()
         {
             try
@@ -68,6 +68,8 @@ namespace deviaretest
                 InstallFunctionHook("kernel32.dll!GetComputerNameW");
                 InstallFunctionHook("kernel32.dll!GetComputerNameExA");
                 InstallFunctionHook("kernel32.dll!GetComputerNameExW");
+
+                InstallFunctionHook("kernel32.dll!SuspendThread");
 
                 InstallFunctionHook("kernel32.dll!CreateRemoteThread");
                 InstallFunctionHook("kernel32.dll!CreateRemoteThreadEx");
@@ -193,6 +195,11 @@ namespace deviaretest
             intelligence.getComputerNameS();
         }
 
+        private void suspendThreadH(INktHookCallInfo callInfo)
+        {
+            intelligence.suspendThreadS();
+        }
+
         private void createRemoteThreadH(INktHookCallInfo callInfo)
         {
             intelligence.createRemoteThreadS();
@@ -202,6 +209,7 @@ namespace deviaretest
             createRemoteThreadH(callInfo);
         }
 
+        //Filters by path
         private void findFirstFileAH(INktHookCallInfo callInfo)
         {
             findFirstFileH(callInfo);
@@ -220,10 +228,17 @@ namespace deviaretest
         }
         private void findFirstFileH(INktHookCallInfo callInfo)
         {
+            //Path to search
             string path = callInfo.Params().GetAt(0).Value;
+            //Distiguishes between 2 methods of scanning:
+            //1:Search for all files, filter later
             if (path.EndsWith("*"))
             {
                 intelligence.findFirstFileS();
+            }
+            //2:Search for each extension separately
+            if (path.EndsWith("*.txt")) {
+                intelligence.findFirstFileTxtS();
             }
         }
 

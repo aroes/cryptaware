@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Nektra.Deviare2;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.IO;
 
 namespace deviaretest
 
@@ -26,7 +27,7 @@ namespace deviaretest
 
             //Initialize process creation watcher
             procWatcher = new ProcessWatcher();
-            
+
 
         }
 
@@ -80,5 +81,22 @@ namespace deviaretest
         }
 
 
+
+        private void FormInterface_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to exit?", "Confirm exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void FormInterface_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            //Clean temp files
+            foreach (string file in Directory.GetFiles(".\\", "*.mca").Where(item => item.EndsWith(".mca")))
+            {
+                File.Delete(file);
+            }
+        }
     }
 }

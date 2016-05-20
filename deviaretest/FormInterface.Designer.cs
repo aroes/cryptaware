@@ -162,6 +162,7 @@
             this.Controls.Add(this.startServiceButton);
             this.Name = "FormInterface";
             this.Text = "Cryptaware";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormInterface_FormClosed);
             this.Load += new System.EventHandler(this.FormInterface_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
