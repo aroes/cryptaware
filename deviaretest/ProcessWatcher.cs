@@ -17,7 +17,6 @@ public class ProcessWatcher
     private Dictionary<int, HookManager> hManagers;
     private ManualResetEvent shutdownDeviareEvent = new ManualResetEvent(false);
     private ManualResetEvent deviareInitializedEvent = new ManualResetEvent(false);
-    private Thread deviareWorker;
 
     public ProcessWatcher()
     {

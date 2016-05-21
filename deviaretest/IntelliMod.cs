@@ -105,7 +105,7 @@ class IntelliMod
     #endregion
 
     #region Number of calls fields
-    private Timer timer = new Timer();
+    private System.Timers.Timer timer = new System.Timers.Timer();
     //Use Max value when it exists, C otherwise (if M value does not exists it means C is exempt from the decay process)
     //C suffix is count; T suffix is threshold; M is maximum; D is decay amount
     //An application is allowed T calls every [20 seconds] Decay tick. Else call will be tagged as malicious
