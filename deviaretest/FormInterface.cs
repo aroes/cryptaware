@@ -80,7 +80,15 @@ namespace deviaretest
 
         }
 
-
+        private void debugCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if(debugCheckBox.Checked == false)
+            {
+                processListView.Items.Clear();
+                calledFListView.Items.Clear();
+                signsListView.Items.Clear();
+            }
+        }
 
         private void FormInterface_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -98,5 +106,7 @@ namespace deviaretest
                 File.Delete(file);
             }
         }
+
+
     }
 }

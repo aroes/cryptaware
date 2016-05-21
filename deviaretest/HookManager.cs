@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -80,6 +81,12 @@ namespace deviaretest
                 InstallFunctionHook("kernel32.dll!FindFirstFileExW");
 
                 InstallFunctionHook("kernel32.dll!WriteFile");
+
+                InstallFunctionHook("kernel32.dll!WinExec");
+
+                InstallFunctionHook("kernel32.dll!CreateProcessA");
+                InstallFunctionHook("kernel32.dll!CreateProcessW");
+
 
 
                 if (UI.debugCheckBox.Checked)
@@ -209,6 +216,21 @@ namespace deviaretest
             createRemoteThreadH(callInfo);
         }
 
+        //TODO
+        //exclude /appdata
+        private void createFileAH(INktHookCallInfo callInfo)
+        {
+            createFileH(callInfo);
+        }
+        private void createFileWH(INktHookCallInfo callInfo)
+        {
+            createFileH(callInfo);
+        }
+        private void createFileH(INktHookCallInfo callInfo)
+        {
+            intelligence.createFileS();
+        }
+
         //Filters by path
         private void findFirstFileAH(INktHookCallInfo callInfo)
         {
@@ -237,16 +259,21 @@ namespace deviaretest
                 intelligence.findFirstFileS();
             }
             //2:Search for each extension separately
-            if (path.EndsWith("*.txt")) {
+            if (path.EndsWith("*.txt"))
+            {
                 intelligence.findFirstFileTxtS();
             }
         }
-
+        //TODO
+        //Checks entropy of buffer
         private void writeFileH(INktHookCallInfo callInfo)
         {
+            IntPtr hFile = callInfo.Params().GetAt(0).Address;
+            StringBuilder sb = new StringBuilder();
             intelligence.writeFileS();
         }
-
+        //TODO
+        //Check path
         private void deleteFileAH(INktHookCallInfo callInfo)
         {
             deleteFileH(callInfo);
@@ -258,6 +285,39 @@ namespace deviaretest
         private void deleteFileH(INktHookCallInfo callInfo)
         {
             intelligence.deleteFileS();
+        }
+
+        //Checks if vssadmin or bcdedit
+        private void winExecH(INktHookCallInfo callInfo)
+        {
+            string path = callInfo.Params().GetAt(0).Value;
+            if (path.Contains("vssadmin", StringComparison.OrdinalIgnoreCase) ||
+                path.Contains("bcdedit", StringComparison.OrdinalIgnoreCase))
+            {
+                intelligence.createProcessS();
+            }
+        }
+
+        //Checks if vssadmin or bcdedit
+        private void createProcessAH(INktHookCallInfo callInfo)
+        {
+            createProcessH(callInfo);
+        }
+        private void createProcessWH(INktHookCallInfo callInfo)
+        {
+            createProcessH(callInfo);
+        }
+        private void createProcessH(INktHookCallInfo callInfo)
+        {
+            string path = callInfo.Params().GetAt(0).Value;
+            string cmd = callInfo.Params().GetAt(1).Value;
+            if (path.Contains("vssadmin", StringComparison.OrdinalIgnoreCase) ||
+                path.Contains("bcdedit", StringComparison.OrdinalIgnoreCase) ||
+                cmd.Contains("vssadmin", StringComparison.OrdinalIgnoreCase) ||
+                cmd.Contains("bcdedit", StringComparison.OrdinalIgnoreCase))
+            {
+                intelligence.createProcessS();
+            }
         }
         #endregion
 

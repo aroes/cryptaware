@@ -39,6 +39,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.debugCheckBox = new System.Windows.Forms.CheckBox();
             this.signsListView = new System.Windows.Forms.ListView();
+            this.killRadioButton = new System.Windows.Forms.RadioButton();
+            this.suspendRadioButton = new System.Windows.Forms.RadioButton();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // startServiceButton
@@ -131,13 +135,14 @@
             // debugCheckBox
             // 
             this.debugCheckBox.AutoSize = true;
-            this.debugCheckBox.Location = new System.Drawing.Point(10, 319);
+            this.debugCheckBox.Location = new System.Drawing.Point(3, 71);
             this.debugCheckBox.Name = "debugCheckBox";
             this.debugCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.debugCheckBox.Size = new System.Drawing.Size(212, 17);
             this.debugCheckBox.TabIndex = 6;
             this.debugCheckBox.Text = "Show debug info (Lowers Performance)";
             this.debugCheckBox.UseVisualStyleBackColor = true;
+            this.debugCheckBox.CheckedChanged += new System.EventHandler(this.debugCheckBox_CheckedChanged);
             // 
             // signsListView
             // 
@@ -148,13 +153,46 @@
             this.signsListView.UseCompatibleStateImageBehavior = false;
             this.signsListView.View = System.Windows.Forms.View.List;
             // 
+            // killRadioButton
+            // 
+            this.killRadioButton.AutoSize = true;
+            this.killRadioButton.Checked = true;
+            this.killRadioButton.Location = new System.Drawing.Point(3, 7);
+            this.killRadioButton.Name = "killRadioButton";
+            this.killRadioButton.Size = new System.Drawing.Size(96, 17);
+            this.killRadioButton.TabIndex = 8;
+            this.killRadioButton.TabStop = true;
+            this.killRadioButton.Text = "Suspend mode";
+            this.killRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // suspendRadioButton
+            // 
+            this.suspendRadioButton.AutoSize = true;
+            this.suspendRadioButton.Location = new System.Drawing.Point(3, 30);
+            this.suspendRadioButton.Name = "suspendRadioButton";
+            this.suspendRadioButton.Size = new System.Drawing.Size(67, 17);
+            this.suspendRadioButton.TabIndex = 9;
+            this.suspendRadioButton.TabStop = true;
+            this.suspendRadioButton.Text = "Kill mode";
+            this.suspendRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.suspendRadioButton);
+            this.panel1.Controls.Add(this.debugCheckBox);
+            this.panel1.Controls.Add(this.killRadioButton);
+            this.panel1.Location = new System.Drawing.Point(12, 212);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(226, 101);
+            this.panel1.TabIndex = 10;
+            // 
             // FormInterface
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(859, 491);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.signsListView);
-            this.Controls.Add(this.debugCheckBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.calledFListView);
             this.Controls.Add(this.label1);
@@ -164,6 +202,8 @@
             this.Text = "Cryptaware";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormInterface_FormClosed);
             this.Load += new System.EventHandler(this.FormInterface_Load);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -182,6 +222,9 @@
         private System.Windows.Forms.ColumnHeader caProcess;
         public System.Windows.Forms.CheckBox debugCheckBox;
         public System.Windows.Forms.ListView signsListView;
+        private System.Windows.Forms.Panel panel1;
+        public System.Windows.Forms.RadioButton killRadioButton;
+        public System.Windows.Forms.RadioButton suspendRadioButton;
     }
 }
 
