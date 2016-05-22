@@ -333,6 +333,13 @@ class IntelliMod
                 MessageBoxIcon.Exclamation);
             nktProc.Terminate();
         }
+        if (UI.passiveRadioButton.Checked)
+        {
+            if (UI.debugCheckBox.Checked)
+            {
+                FormInterface.listViewAddItem(UI.signsListView, nktProc + " may be ransomware");
+            }
+        }
     }
 
     #endregion
@@ -454,7 +461,7 @@ class IntelliMod
         scanForSuspiciousStringsAndExtensions();
 
     }
-    //evals+scans Filters by provider
+    //Enhanced RSA and AES provider acquired evals+scans
     internal void cryptAcquireContextS()
     {
         cryptAcquireContextC++;
@@ -555,65 +562,63 @@ class IntelliMod
         }
         scanForSuspiciousStringsAndExtensions();
     }
-
+    //File openings and creations (\appdata\ ignored)
     internal void createFileS()
     {
         createFileC++;
         //Once every 10 calls
-        if (createFileC % 50 == 0)
+        if (createFileC % 10 == 0)
         {
             //Display sign on the UI
             if (UI.debugCheckBox.Checked)
             {
-                FormInterface.listViewAddItem(UI.signsListView, "50xCreateFile");
+                FormInterface.listViewAddItem(UI.signsListView, "10xCreateFile");
             }
         }
     }
 
-    //update ui every 10
+    //Finding all files (\appdata\ ignored) update ui every 5
     internal void findFirstFileS()
     {
         findFirstFileC++;
-        //Once every 10 calls
-        if (findFirstFileC % 10 == 0)
+        //Once every 5 calls
+        if (findFirstFileC % 5 == 0)
         {
             //Display sign on the UI
             if (UI.debugCheckBox.Checked)
             {
-                FormInterface.listViewAddItem(UI.signsListView, "10xFinding all files in directory");
+                FormInterface.listViewAddItem(UI.signsListView, "5xFinding all files in directory");
             }
         }
 
     }
+    //Finding all txt files (\appdata\ ignored) update ui every 5
     internal void findFirstFileTxtS()
     {
         findFirstFileC++;
-        //Once every 10 calls
-        if (findFirstFileC % 10 == 0)
+        //Once every 5 calls
+        if (findFirstFileC % 5 == 0)
         {
             //Display sign on the UI
             if (UI.debugCheckBox.Checked)
             {
-                FormInterface.listViewAddItem(UI.signsListView, "10xFinding txt files in directory");
+                FormInterface.listViewAddItem(UI.signsListView, "5xFinding txt files in directory");
             }
         }
 
     }
-    //update ui every 50
+    //High entropy writefiles
     internal void writeFileS()
     {
         writeFileC++;
-        //Once every 50 calls
-        if (writeFileC % 50 == 0)
+        //Display sign on the UI
+        if (UI.debugCheckBox.Checked)
         {
-            //Display sign on the UI
-            if (UI.debugCheckBox.Checked)
-            {
-                FormInterface.listViewAddItem(UI.signsListView, "50xWritefile");
-            }
+            FormInterface.listViewAddItem(UI.signsListView, "High entropy WriteFile");
         }
-    }
 
+    }
+    //DeleteFiles not in \appdata\
     internal void deleteFileS()
     {
         deleteFileC++;
@@ -623,7 +628,7 @@ class IntelliMod
             FormInterface.listViewAddItem(UI.signsListView, "Deletefile");
         }
     }
-
+    //Execution of vssadmin or bcdedit
     internal void winExecS()
     {
         winExecC++;
@@ -633,7 +638,7 @@ class IntelliMod
             FormInterface.listViewAddItem(UI.signsListView, "Suspicious winExec usage");
         }
     }
-
+    //Execution of vssadmin or bcdedit
     internal void createProcessS()
     {
         createProcessC++;

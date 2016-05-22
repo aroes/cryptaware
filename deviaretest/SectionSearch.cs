@@ -40,20 +40,9 @@ class SectionSearch
             {
                 getSections();
             }
-            //If the memdump file is small enough scan for the query
-            // long maxMemDumpSize = 104857600;
-            //  if (new FileInfo(filename).Length < maxMemDumpSize)
-            //   {
             bool foundA = File.ReadAllText(filename, Encoding.ASCII).Contains(query, StringComparison.OrdinalIgnoreCase);
             bool foundU = File.ReadAllText(filename, Encoding.Unicode).Contains(query, StringComparison.OrdinalIgnoreCase);
             return foundA || foundU;
-            //   }
-            //If it is too large it is not ransomware; Skip check and do not rescan
-            //    else
-            //    {
-            //         doNotRescan = true;
-            //         return false;
-            //   }
         }
     }
     //Creates a file with the process memory (Does NOT handle deleting, take care of it elsewhere!)

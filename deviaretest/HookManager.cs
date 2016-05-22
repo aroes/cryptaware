@@ -117,8 +117,9 @@ namespace deviaretest
 
 
         #region Function call handlers
-
         //Send suspicious ... calls to intelligence
+
+        //Only send startup installs to intelligence
         private void regCreateKeyExAH(INktHookCallInfo callInfo)
         {
             regCreateKeyExH(callInfo);
@@ -138,7 +139,7 @@ namespace deviaretest
 
         }
 
-        //Send suspicious ... calls to intelligence
+        //Only send if context is MS Enhanced RSA and AES
         private void cryptAcquireContextAH(INktHookCallInfo callInfo)
         {
             cryptAcquireContextH(callInfo);
@@ -156,31 +157,37 @@ namespace deviaretest
             }
         }
 
+        //Send all
         private void cryptImportKeyH(INktHookCallInfo callInfo)
         {
             intelligence.cryptImportKeyS();
         }
 
+        //Send all
         private void cryptGenKeyH(INktHookCallInfo callInfo)
         {
             intelligence.cryptGenKeyS();
         }
 
+        //Send all
         private void cryptEncryptH(INktHookCallInfo callInfo)
         {
             intelligence.cryptEncryptS();
         }
 
+        //Send all
         private void cryptExportKeyH(INktHookCallInfo callInfo)
         {
             intelligence.cryptExportKeyS();
         }
 
+        //Send all
         private void cryptDestroyKeyH(INktHookCallInfo callInfo)
         {
             intelligence.cryptDestroyKeyS();
         }
 
+        //Send all
         private void getComputerNameAH(INktHookCallInfo callInfo)
         {
             getComputerNameH(callInfo);
@@ -202,11 +209,13 @@ namespace deviaretest
             intelligence.getComputerNameS();
         }
 
+        //Send all
         private void suspendThreadH(INktHookCallInfo callInfo)
         {
             intelligence.suspendThreadS();
         }
 
+        //Send all
         private void createRemoteThreadH(INktHookCallInfo callInfo)
         {
             intelligence.createRemoteThreadS();
@@ -216,8 +225,7 @@ namespace deviaretest
             createRemoteThreadH(callInfo);
         }
 
-        //TODO
-        //exclude /appdata
+        //Only send when path doesn't include \appdata\
         private void createFileAH(INktHookCallInfo callInfo)
         {
             createFileH(callInfo);
@@ -228,10 +236,14 @@ namespace deviaretest
         }
         private void createFileH(INktHookCallInfo callInfo)
         {
-            intelligence.createFileS();
+            string path = callInfo.Params().GetAt(0).Value;
+            if (!path.Contains("\\appdata\\", StringComparison.OrdinalIgnoreCase))
+            {
+                intelligence.createFileS();
+            }
         }
 
-        //Filters by path
+        //Directory wide searches. Only send when path doesnt include \appdata\ 
         private void findFirstFileAH(INktHookCallInfo callInfo)
         {
             findFirstFileH(callInfo);
@@ -254,12 +266,12 @@ namespace deviaretest
             string path = callInfo.Params().GetAt(0).Value;
             //Distiguishes between 2 methods of scanning:
             //1:Search for all files, filter later
-            if (path.EndsWith("*"))
+            if (path.EndsWith("*") && !path.Contains("\\appdata\\", StringComparison.OrdinalIgnoreCase))
             {
                 intelligence.findFirstFileS();
             }
             //2:Search for each extension separately
-            if (path.EndsWith("*.txt"))
+            if (path.EndsWith("*.txt") && !path.Contains("\\appdata\\", StringComparison.OrdinalIgnoreCase))
             {
                 intelligence.findFirstFileTxtS();
             }
@@ -268,8 +280,14 @@ namespace deviaretest
         //Checks entropy of buffer
         private void writeFileH(INktHookCallInfo callInfo)
         {
-            IntPtr hFile = callInfo.Params().GetAt(0).Address;
-            StringBuilder sb = new StringBuilder();
+            IntPtr lpBuffer = callInfo.Params().GetAt(1).Address;
+            uint uBufferSize = callInfo.Params().GetAt(2).Value;
+            int bufferSize = (int)uBufferSize;
+            byte[] buffer = new byte[bufferSize];
+            GCHandle pinnedArray = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            IntPtr pBuffer = pinnedArray.AddrOfPinnedObject();
+            pBuffer = callInfo.Process().Memory().ReadMem(pBuffer, lpBuffer, new IntPtr(bufferSize));
+            var str = System.Text.Encoding.UTF8.GetString(buffer);
             intelligence.writeFileS();
         }
         //TODO
@@ -322,32 +340,5 @@ namespace deviaretest
         #endregion
 
 
-        //Get NktProcess by name (maybe outdated method)
-        public NktProcess GetProcess(string processName)
-        {
-            NktProcessesEnum enumProcess = pw.spyMgr.Processes();
-            NktProcess tempProcess = enumProcess.First();
-            while (tempProcess != null)
-            {
-                if (tempProcess.Name.Equals(processName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return tempProcess;
-                }
-                tempProcess = enumProcess.Next();
-            }
-            return null;
-        }
-
-        //Get NktProcess by its PID (likely useless now)
-        public static NktProcess GetProcess(int ID)
-        {
-            NktProcessesEnum enumProcess = ProcessWatcher.GetInstance().spyMgr.Processes();
-            NktProcess process = enumProcess.GetById(ID);
-            if (process == null)
-            {
-                Debug.WriteLine("Error while retrieving process by PID " + ID);
-            }
-            return process;
-        }
     }
 }
