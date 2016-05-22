@@ -44,10 +44,7 @@ namespace deviaretest
                 Debug.WriteLine("Installing hooks in " + process.Name);
 
                 //Install each function hook
-
-                //InstallFunctionHook("kernel32.dll!CreateFileA", process);
-                //InstallFunctionHook("kernel32.dll!CreateFileW", process);
-
+                
 
                 InstallFunctionHook("advapi32.dll!RegCreateKeyExA");
                 InstallFunctionHook("advapi32.dll!RegCreateKeyExW");
@@ -75,12 +72,19 @@ namespace deviaretest
                 InstallFunctionHook("kernel32.dll!CreateRemoteThread");
                 InstallFunctionHook("kernel32.dll!CreateRemoteThreadEx");
 
+                InstallFunctionHook("kernel32.dll!CreateFileA");
+                InstallFunctionHook("kernel32.dll!CreateFileW");
+
                 InstallFunctionHook("kernel32.dll!FindFirstFileA");
                 InstallFunctionHook("kernel32.dll!FindFirstFileW");
                 InstallFunctionHook("kernel32.dll!FindFirstFileExA");
                 InstallFunctionHook("kernel32.dll!FindFirstFileExW");
 
+                //Consider adding WriteFileEx
                 InstallFunctionHook("kernel32.dll!WriteFile");
+
+                InstallFunctionHook("kernel32.dll!DeleteFileA");
+                InstallFunctionHook("kernel32.dll!DeleteFileW");
 
                 InstallFunctionHook("kernel32.dll!WinExec");
 
@@ -276,22 +280,56 @@ namespace deviaretest
                 intelligence.findFirstFileTxtS();
             }
         }
-        //TODO
+
         //Checks entropy of buffer
         private void writeFileH(INktHookCallInfo callInfo)
         {
-            IntPtr lpBuffer = callInfo.Params().GetAt(1).Address;
-            uint uBufferSize = callInfo.Params().GetAt(2).Value;
-            int bufferSize = (int)uBufferSize;
-            byte[] buffer = new byte[bufferSize];
-            GCHandle pinnedArray = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            IntPtr pBuffer = pinnedArray.AddrOfPinnedObject();
-            pBuffer = callInfo.Process().Memory().ReadMem(pBuffer, lpBuffer, new IntPtr(bufferSize));
-            var str = System.Text.Encoding.UTF8.GetString(buffer);
-            intelligence.writeFileS();
+            INktParam pBuf = callInfo.Params().GetAt(1); //Data to write
+            INktParam pBytes = callInfo.Params().GetAt(2); //Length of data
+
+            uint bytesToWrite = pBytes.ULongVal;
+            double entropy = 0;
+            if (pBuf.PointerVal != IntPtr.Zero && bytesToWrite > 0)
+            {
+                INktProcessMemory procMem = process.Memory();
+                byte[] buffer = new byte[bytesToWrite];
+                GCHandle pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+                IntPtr pDest = pinnedBuffer.AddrOfPinnedObject();
+                procMem.ReadMem(pDest, pBuf.PointerVal, (IntPtr)bytesToWrite);
+                pinnedBuffer.Free();
+                var str = System.Text.Encoding.UTF8.GetString(buffer);
+                //Get per-byte entropy
+                entropy = getEntropy(buffer);
+            }
+            //Image files have high entropy -> Internet explorer triggers LOTS of high entropy writefile
+            //Could be solved by keeping an open filehandle list, then restricting by path != \appdata\
+            if (entropy > 6)
+            {
+                intelligence.writeFileS();
+            }
         }
-        //TODO
-        //Check path
+
+        private double getEntropy(byte[] buffer)
+        {
+            int[] counts = new int[256];
+            foreach(byte b in buffer)
+            {
+                counts[(int)b] += 1;
+            }
+            double entropy = 0.0;
+            int len = buffer.Length;
+            foreach (int c in counts)
+            {
+                double frequency = (double)c / len;
+                if (frequency > 0)
+                {
+                    entropy -= frequency * (Math.Log(frequency) / Math.Log(2));
+                }
+            }
+            return entropy;
+        }
+
+        //Checks path
         private void deleteFileAH(INktHookCallInfo callInfo)
         {
             deleteFileH(callInfo);
@@ -302,7 +340,11 @@ namespace deviaretest
         }
         private void deleteFileH(INktHookCallInfo callInfo)
         {
-            intelligence.deleteFileS();
+            string path = callInfo.Params().GetAt(0).Value;
+            if (!path.Contains("\\appdata\\", StringComparison.OrdinalIgnoreCase))
+            {
+                intelligence.deleteFileS();
+            }
         }
 
         //Checks if vssadmin or bcdedit

@@ -28,8 +28,8 @@ class IntelliMod
     //Threshold for malicious likelyhood
     private double stringsThreshold = 0.25;
     //Fraction of extensions that need to be found to mark a found white/blacklist
-    double wSuspiciousFraction = 1 / 2;
-    double bSuspiciousFraction = 5 / 8;
+    double wSuspiciousFraction = (double)1 / 2;
+    double bSuspiciousFraction = (double)5 / 8;
 
     //Was an extension list found
     bool foundExtensionsWhitelist = false;
@@ -166,37 +166,49 @@ class IntelliMod
     //Apply linear decay for relevant count values; also sets the maximum values when needed
     private void decay(object source, ElapsedEventArgs e)
     {
-        //For each function, check if it the max count encountered yet
+        //For each function, update Max count value
+        refreshMax();
         //Then subtract the decay value from the count (dont let it drop below 0)
-        cryptGenKeyM = Math.Max(cryptGenKeyM, cryptGenKeyC);
         cryptGenKeyC = Math.Max(cryptGenKeyC - cryptGenKeyD, 0);
+    
+        cryptEncryptC = Math.Max(cryptEncryptC - cryptEncryptD, 0);
+        
+        cryptExportKeyC = Math.Max(cryptExportKeyC - cryptExportKeyD, 0);
+        
+        cryptDestroyKeyC = Math.Max(cryptDestroyKeyC - cryptDestroyKeyD, 0);
+        
+        createFileC = Math.Max(createFileC - createFileD, 0);
+        
+        findFirstFileC = Math.Max(findFirstFileC - findFirstFileD, 0);
+        
+        writeFileC = Math.Max(writeFileC - writeFileD, 0);
+        
+        deleteFileC = Math.Max(deleteFileC - deleteFileD, 0);
+    }
+
+    private void refreshMax()
+    {
+        cryptGenKeyM = Math.Max(cryptGenKeyM, cryptGenKeyC);
 
         cryptEncryptM = Math.Max(cryptEncryptM, cryptEncryptC);
-        cryptEncryptC = Math.Max(cryptEncryptC - cryptEncryptD, 0);
 
         cryptExportKeyM = Math.Max(cryptExportKeyM, cryptExportKeyC);
-        cryptExportKeyC = Math.Max(cryptExportKeyC - cryptExportKeyD, 0);
 
         cryptDestroyKeyM = Math.Max(cryptDestroyKeyM, cryptDestroyKeyC);
-        cryptDestroyKeyC = Math.Max(cryptDestroyKeyC - cryptDestroyKeyD, 0);
 
         createFileM = Math.Max(createFileM, createFileC);
-        createFileC = Math.Max(createFileC - createFileD, 0);
 
         findFirstFileM = Math.Max(findFirstFileM, findFirstFileC);
-        findFirstFileC = Math.Max(findFirstFileC - findFirstFileD, 0);
 
         writeFileM = Math.Max(writeFileM, writeFileC);
-        writeFileC = Math.Max(writeFileC - writeFileD, 0);
 
         deleteFileM = Math.Max(deleteFileM, deleteFileC);
-        deleteFileC = Math.Max(deleteFileC - deleteFileD, 0);
     }
 
     #region Decision process
 
-    //0-1 is this program ransomware
-    double overallLikelyhood = 0;
+    //0-1 is or was this program ransomware
+    double maxLikelyhood = 0;
 
     //Threshold for likelyhood
     private double overallThreshold = 0.45;
@@ -238,50 +250,57 @@ class IntelliMod
     //Considering all calls, determine if this process is malicious
     private void evaluate()
     {
+        //0-1 is this program ransomware
+        double tempLikelyhood = 0;
+        //Get up to date Max values
+        refreshMax();
         //Aggregate all indicators
         bool[] signs = {
             //String analysis
-            ransomLikelyhoodFromStrings > stringsThreshold, //Strings indicate ransomware
-            foundExtensionsWhitelist || foundExtensionsBlacklist, //Memory contains a list of extensions
-            foundExtensionsWhitelist ^ foundExtensionsBlacklist, //Memory contains a whitelist xor a blacklist (most likely in ransomware)
+            ransomLikelyhoodFromStrings > stringsThreshold, //Strings indicate ransomware0
+            foundExtensionsWhitelist || foundExtensionsBlacklist, //Memory contains a list of extensions1
+            foundExtensionsWhitelist ^ foundExtensionsBlacklist, //Memory contains a whitelist xor a blacklist (most likely in ransomware)2
             //Call analysis
-            startup, //Program installed itself into startup -> Suspicious
-            cryptAcquireContextC > 0, //Some AES/RSA cryptography
-            cryptImportKeyC > 0, //Imported a key
-            cryptGenKeyM > 0, //Generated a key
-            cryptGenKeyM > cryptGenKeyT, //Generating lots of keys -> Very suspicious
-            cryptEncryptM > cryptEncryptT, //Encrypting lots of things -> Suspicious
-            cryptExportKeyM > 0, //Exported a key
-            cryptExportKeyM > cryptExportKeyT, //Exporting lots of keys -> Suspicious
-            cryptDestroyKeyM > 0, //Destroyed a key
-            cryptDestroyKeyM > cryptDestroyKeyT, //Destroying lots of keys -> Very suspicious
-            suspendThreadC > 0, //Suspended a thread -> Suspicious
-            createRemoteThreadC > 0 && suspendThreadC > 0, //Likely process injection -> Very suspicious
-            createFileM > createFileT, //Opening lots of files -> Unusual
-            findFirstFileM > findFirstFileT, //Lots of directory searches -> Suspicious
-            writeFileM > writeFileT, //Lots of high entropy writes -> Very suspicious
-            deleteFileM > deleteFileT, //Lots of file deletes -> Very suspicious
-            winExecC > 0 || createProcessC > 0, //Starting vssadmin or bcdedit -> Very suspicious/Basically sufficient
-            createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient
+            startup, //Program installed itself into startup -> Suspicious3
+            cryptAcquireContextC > 0, //Some AES/RSA cryptography4
+            cryptImportKeyC > 0, //Imported a key5
+            cryptGenKeyM > 0, //Generated a key6
+            cryptGenKeyM > cryptGenKeyT, //Generating lots of keys -> Very suspicious7
+            cryptEncryptM > cryptEncryptT, //Encrypting lots of things -> Suspicious8
+            cryptExportKeyM > 0, //Exported a key9
+            cryptExportKeyM > cryptExportKeyT, //Exporting lots of keys -> Suspicious10
+            cryptDestroyKeyM > 0, //Destroyed a key11
+            cryptDestroyKeyM > cryptDestroyKeyT, //Destroying lots of keys -> Very suspicious12
+            suspendThreadC > 0, //Suspended a thread -> Suspicious13
+            createRemoteThreadC > 0 && suspendThreadC > 0, //Likely process injection -> Very suspicious14
+            createFileM > createFileT, //Opening lots of files -> Unusual15
+            findFirstFileM > findFirstFileT, //Lots of directory searches -> Suspicious16
+            writeFileM > writeFileT, //Lots of high entropy writes -> Very suspicious17
+            deleteFileM > deleteFileT, //Lots of file deletes -> Very suspicious18
+            winExecC > 0 || createProcessC > 0, //Starting vssadmin or bcdedit -> Very suspicious/Basically sufficient19
+            createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient20
         };
         double sum = signWeights.Sum();
-        for (int i = 0; i > signs.Length; i++)
+        for (int i = 0; i < signs.Length; i++)
         {
             if (signs[i])
             {
-                overallLikelyhood += signWeights[i] / sum;
+                tempLikelyhood += signWeights[i] / sum;
             }
         }
         //Show likelyhood on UI
         if (UI.debugCheckBox.Checked)
         {
-            FormInterface.listViewAddItem(UI.signsListView, "Overall suspicion:" + overallLikelyhood);
+            FormInterface.listViewAddItem(UI.signsListView, "Overall likelyhood:" + tempLikelyhood);
         }
+        //Update max likelyhood 
+        maxLikelyhood = Math.Max(maxLikelyhood, tempLikelyhood);
         //If process is ransomware
-        if (overallLikelyhood > overallThreshold)
+        if (maxLikelyhood > overallThreshold)
         {
             handleRansomware();
         }
+
     }
 
     //Notify user and suspend or kill process
@@ -351,7 +370,7 @@ class IntelliMod
     {
         long maxWorkingSetSize = 104857600 * 2;
         //Proceed if used RAM is small enough (<200mb)
-        if (winProc.WorkingSet64 < maxWorkingSetSize)
+        if (winProc.WorkingSet64 + winProc.PrivateMemorySize64 < maxWorkingSetSize)
         {
             int now = Environment.TickCount;
             //Only rescan if the last scan was >20 seconds ago
@@ -523,6 +542,7 @@ class IntelliMod
             FormInterface.listViewAddItem(UI.signsListView, "CryptDestroyKey call");
         }
         scanForSuspiciousStringsAndExtensions();
+        evaluate();
     }
 
 
@@ -551,16 +571,20 @@ class IntelliMod
         }
         scanForSuspiciousStringsAndExtensions();
     }
-    //scans
+    //scans once
     internal void createRemoteThreadS()
     {
         createRemoteThreadC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
+        //Display sign on the UI once
+        if (createRemoteThreadC == 1)
         {
-            FormInterface.listViewAddItem(UI.signsListView, "CreateRemoteThread: possible process injection");
+            if (UI.debugCheckBox.Checked)
+            {
+                FormInterface.listViewAddItem(UI.signsListView, "CreateRemoteThread: possible process injection");
+            }
+            scanForSuspiciousStringsAndExtensions();
         }
-        scanForSuspiciousStringsAndExtensions();
+
     }
     //File openings and creations (\appdata\ ignored)
     internal void createFileS()
