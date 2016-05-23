@@ -44,7 +44,7 @@ namespace deviaretest
                 Debug.WriteLine("Installing hooks in " + process.Name);
 
                 //Install each function hook
-                
+
 
                 InstallFunctionHook("advapi32.dll!RegCreateKeyExA");
                 InstallFunctionHook("advapi32.dll!RegCreateKeyExW");
@@ -281,38 +281,45 @@ namespace deviaretest
             }
         }
 
-        //Checks entropy of buffer
+        //Checks entropy of buffer, and that path is not REG or appdata
         private void writeFileH(INktHookCallInfo callInfo)
         {
-            INktParam pBuf = callInfo.Params().GetAt(1); //Data to write
-            INktParam pBytes = callInfo.Params().GetAt(2); //Length of data
+            //Get written path from file handle
+            NktTools tool = new NktTools();
+            string path = tool.GetFileNameFromHandle(callInfo.Params().GetAt(0).PointerVal, callInfo.Process());
 
-            uint bytesToWrite = pBytes.ULongVal;
-            double entropy = 0;
-            if (pBuf.PointerVal != IntPtr.Zero && bytesToWrite > 0)
+            //If path is relevant
+            if (!path.Contains("\\appdata\\", StringComparison.OrdinalIgnoreCase) &&
+                !path.Contains("\\REGISTRY\\"))
             {
-                INktProcessMemory procMem = process.Memory();
-                byte[] buffer = new byte[bytesToWrite];
-                GCHandle pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-                IntPtr pDest = pinnedBuffer.AddrOfPinnedObject();
-                procMem.ReadMem(pDest, pBuf.PointerVal, (IntPtr)bytesToWrite);
-                pinnedBuffer.Free();
-                var str = System.Text.Encoding.UTF8.GetString(buffer);
-                //Get per-byte entropy
-                entropy = getEntropy(buffer);
-            }
-            //Image files have high entropy -> Internet explorer triggers LOTS of high entropy writefile
-            //Could be solved by keeping an open filehandle list, then restricting by path != \appdata\
-            if (entropy > 6)
-            {
-                intelligence.writeFileS();
+                INktParam pBuf = callInfo.Params().GetAt(1); //Data to write
+                INktParam pBytes = callInfo.Params().GetAt(2); //Length of data
+
+                uint bytesToWrite = pBytes.ULongVal;
+                double entropy = 0;
+                if (pBuf.PointerVal != IntPtr.Zero && bytesToWrite > 0)
+                {
+                    INktProcessMemory procMem = process.Memory();
+                    byte[] buffer = new byte[bytesToWrite];
+                    GCHandle pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+                    IntPtr pDest = pinnedBuffer.AddrOfPinnedObject();
+                    procMem.ReadMem(pDest, pBuf.PointerVal, (IntPtr)bytesToWrite);
+                    pinnedBuffer.Free();
+                    var str = System.Text.Encoding.UTF8.GetString(buffer);
+                    //Get per-byte entropy
+                    entropy = getEntropy(buffer);
+                }
+                if (entropy > 6)
+                {
+                    intelligence.writeFileS();
+                }
             }
         }
 
         private double getEntropy(byte[] buffer)
         {
             int[] counts = new int[256];
-            foreach(byte b in buffer)
+            foreach (byte b in buffer)
             {
                 counts[(int)b] += 1;
             }

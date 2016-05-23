@@ -185,7 +185,7 @@ class IntelliMod
         
         deleteFileC = Math.Max(deleteFileC - deleteFileD, 0);
     }
-
+    //Updates M values
     private void refreshMax()
     {
         cryptGenKeyM = Math.Max(cryptGenKeyM, cryptGenKeyC);
@@ -211,13 +211,13 @@ class IntelliMod
     double maxLikelyhood = 0;
 
     //Threshold for likelyhood
-    private double overallThreshold = 0.45;
+    private double overallThreshold = 0.65;
 
     private double[] signWeights = {
             //String analysis
-            10, //ransomLikelyhoodFromStrings > stringsThreshold, //Strings indicate ransomware
+            15, //ransomLikelyhoodFromStrings > stringsThreshold, //Strings indicate ransomware
             7,//foundExtensionsWhitelist || foundExtensionsBlacklist, //Memory contains a list of extensions
-            14,//foundExtensionsWhitelist ^ foundExtensionsBlacklist, //Memory contains a whitelist xor a blacklist (most likely in ransomware)
+            16,//foundExtensionsWhitelist ^ foundExtensionsBlacklist, //Memory contains a whitelist xor a blacklist (most likely in ransomware)
             //Call analysis
             15,//startup, //Program installed itself into startup -> Suspicious
             10,//cryptAcquireContextC > 0, //Some AES/RSA cryptography
@@ -236,16 +236,9 @@ class IntelliMod
             17,//writeFileM > writeFileT, //Lots of high entropy writes -> Very suspicious
             18,//deleteFileM > deleteFileT, //Lots of file deletes -> Very suspicious
             20,//winExecC > 0 || createProcessC > 0, //Starting vssadmin or bcdedit -> Very suspicious/Basically sufficient
-            10//createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient
+            20//createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient
         };
 
-    //Thread windows api functions
-    [DllImport("kernel32.dll")]
-    static extern IntPtr OpenThread(uint dwDesiredAccess, bool bInheritHandle, uint dwThreadId);
-    [DllImport("kernel32.dll")]
-    static extern uint SuspendThread(IntPtr hThread);
-    [DllImport("kernel32.dll")]
-    static extern uint ResumeThread(IntPtr hThread);
 
     //Considering all calls, determine if this process is malicious
     private void evaluate()
@@ -280,7 +273,8 @@ class IntelliMod
             winExecC > 0 || createProcessC > 0, //Starting vssadmin or bcdedit -> Very suspicious/Basically sufficient19
             createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient20
         };
-        double sum = signWeights.Sum();
+        //Half the signs are enough
+        double sum = signWeights.Sum() / 2;
         for (int i = 0; i < signs.Length; i++)
         {
             if (signs[i])
@@ -302,6 +296,14 @@ class IntelliMod
         }
 
     }
+
+    //Thread suspend windows api functions
+    [DllImport("kernel32.dll")]
+    static extern IntPtr OpenThread(uint dwDesiredAccess, bool bInheritHandle, uint dwThreadId);
+    [DllImport("kernel32.dll")]
+    static extern uint SuspendThread(IntPtr hThread);
+    [DllImport("kernel32.dll")]
+    static extern uint ResumeThread(IntPtr hThread);
 
     //Notify user and suspend or kill process
     private void handleRansomware()
@@ -379,7 +381,7 @@ class IntelliMod
                 //Update last scan time
                 lastScan = now;
                 //Search for strings
-                ransomLikelyhoodFromStrings = scanForStrings();
+                ransomLikelyhoodFromStrings = Math.Max(ransomLikelyhoodFromStrings, scanForStrings());
                 //Search for extension list
                 scanForExtensions();
             }
@@ -466,6 +468,7 @@ class IntelliMod
     //The following functions handle statistics for suspicious calls
 
     #region Statistics gathering
+
     //evals+scans
     internal void foundStartup()
     {
@@ -476,9 +479,8 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "Startup Install");
         }
-        evaluate();
         scanForSuspiciousStringsAndExtensions();
-
+        evaluate();
     }
     //Enhanced RSA and AES provider acquired evals+scans
     internal void cryptAcquireContextS()
@@ -489,8 +491,8 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "Acquired enhanced AES and RSA context");
         }
-        evaluate();
         scanForSuspiciousStringsAndExtensions();
+        evaluate();
     }
 
     internal void cryptImportKeyS()
@@ -521,6 +523,8 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "CryptEncrypt call");
         }
+        scanForSuspiciousStringsAndExtensions();
+        evaluate();
     }
 
     internal void cryptExportKeyS()
@@ -541,12 +545,12 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "CryptDestroyKey call");
         }
-        scanForSuspiciousStringsAndExtensions();
         evaluate();
+        scanForSuspiciousStringsAndExtensions();
     }
 
 
-    //Update ui only once
+    //Update ui, scan+eval only once
     internal void getComputerNameS()
     {
         getComputerNameC++;
@@ -558,6 +562,8 @@ class IntelliMod
             {
                 FormInterface.listViewAddItem(UI.signsListView, "Collection of PC Name");
             }
+            scanForSuspiciousStringsAndExtensions();
+            evaluate();
         }
     }
 
@@ -570,8 +576,9 @@ class IntelliMod
             FormInterface.listViewAddItem(UI.signsListView, "SuspendThread: possible process injection");
         }
         scanForSuspiciousStringsAndExtensions();
+        evaluate();
     }
-    //scans once
+    //Update ui, eval, scans once
     internal void createRemoteThreadS()
     {
         createRemoteThreadC++;
@@ -583,10 +590,11 @@ class IntelliMod
                 FormInterface.listViewAddItem(UI.signsListView, "CreateRemoteThread: possible process injection");
             }
             scanForSuspiciousStringsAndExtensions();
+            evaluate();
         }
 
     }
-    //File openings and creations (\appdata\ ignored)
+    //File openings and creations (\appdata\ ignored). Ui and eval every 10
     internal void createFileS()
     {
         createFileC++;
@@ -598,6 +606,7 @@ class IntelliMod
             {
                 FormInterface.listViewAddItem(UI.signsListView, "10xCreateFile");
             }
+            evaluate();
         }
     }
 
@@ -613,6 +622,7 @@ class IntelliMod
             {
                 FormInterface.listViewAddItem(UI.signsListView, "5xFinding all files in directory");
             }
+            evaluate();
         }
 
     }
@@ -628,6 +638,7 @@ class IntelliMod
             {
                 FormInterface.listViewAddItem(UI.signsListView, "5xFinding txt files in directory");
             }
+            evaluate();
         }
 
     }
@@ -640,6 +651,7 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "High entropy WriteFile");
         }
+        evaluate();
 
     }
     //DeleteFiles not in \appdata\
@@ -651,6 +663,8 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "Deletefile");
         }
+        scanForSuspiciousStringsAndExtensions();
+        evaluate();
     }
     //Execution of vssadmin or bcdedit
     internal void winExecS()
@@ -661,6 +675,8 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "Suspicious winExec usage");
         }
+        scanForSuspiciousStringsAndExtensions();
+        evaluate();
     }
     //Execution of vssadmin or bcdedit
     internal void createProcessS()
@@ -671,6 +687,8 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.signsListView, "Suspicious createProcess usage");
         }
+        scanForSuspiciousStringsAndExtensions();
+        evaluate();
     }
     #endregion
 
