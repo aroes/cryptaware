@@ -132,17 +132,17 @@ class IntelliMod
     private int suspendThreadC = 0; //T= C>1
     private int createRemoteThreadC = 0; //T= C>1
     private int createFileC = 0;
-    private int createFileT = 10;
+    private int createFileT = 20;
     private int createFileM = 0;
-    private int createFileD = 10;
+    private int createFileD = 20;
     private int findFirstFileC = 0;
     private int findFirstFileT = 20;
     private int findFirstFileM = 0;
     private int findFirstFileD = 20;
     private int writeFileC = 0;
-    private int writeFileT = 100;
+    private int writeFileT = 50;
     private int writeFileM = 0;
-    private int writeFileD = 100;
+    private int writeFileD = 50;
     private int deleteFileC = 0;
     private int deleteFileT = 10;
     private int deleteFileM = 0;
@@ -215,7 +215,7 @@ class IntelliMod
 
     private double[] signWeights = {
             //String analysis
-            15, //ransomLikelyhoodFromStrings > stringsThreshold, //Strings indicate ransomware
+            20, //ransomLikelyhoodFromStrings > stringsThreshold, //Strings indicate ransomware
             7,//foundExtensionsWhitelist || foundExtensionsBlacklist, //Memory contains a list of extensions
             16,//foundExtensionsWhitelist ^ foundExtensionsBlacklist, //Memory contains a whitelist xor a blacklist (most likely in ransomware)
             //Call analysis
@@ -225,10 +225,11 @@ class IntelliMod
             6,//cryptGenKeyM > 0, //Generated a key
             18,//cryptGenKeyM > cryptGenKeyT, //Generating lots of keys -> Very suspicious
             16,//cryptEncryptM > cryptEncryptT, //Encrypting lots of things -> Suspicious
-            5,//cryptExportKeyM > 0, //Exported a key
+            7,//cryptExportKeyM > 0, //Exported a key
             10,//cryptExportKeyM > cryptExportKeyT, //Exporting lots of keys -> Suspicious
-            5,//cryptDestroyKeyM > 0, //Destroyed a key
+            7,//cryptDestroyKeyM > 0, //Destroyed a key
             16,//cryptDestroyKeyM > cryptDestroyKeyT, //Destroying lots of keys -> Very suspicious
+            5, //getComputerNameC > 0, //Collecting ComputerName ->Fairly standard
             14,//suspendThreadC > 0, //Suspended a thread -> Suspicious
             17,//createRemoteThreadC > 0 && suspendThreadC > 0, //Likely process injection -> Very suspicious
             10,//createFileM > createFileT, //Opening lots of files -> Unusual
@@ -264,14 +265,15 @@ class IntelliMod
             cryptExportKeyM > cryptExportKeyT, //Exporting lots of keys -> Suspicious10
             cryptDestroyKeyM > 0, //Destroyed a key11
             cryptDestroyKeyM > cryptDestroyKeyT, //Destroying lots of keys -> Very suspicious12
-            suspendThreadC > 0, //Suspended a thread -> Suspicious13
-            createRemoteThreadC > 0 && suspendThreadC > 0, //Likely process injection -> Very suspicious14
-            createFileM > createFileT, //Opening lots of files -> Unusual15
-            findFirstFileM > findFirstFileT, //Lots of directory searches -> Suspicious16
-            writeFileM > writeFileT, //Lots of high entropy writes -> Very suspicious17
-            deleteFileM > deleteFileT, //Lots of file deletes -> Very suspicious18
-            winExecC > 0 || createProcessC > 0, //Starting vssadmin or bcdedit -> Very suspicious/Basically sufficient19
-            createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient20
+            getComputerNameC > 0, //Collecting ComputerName ->Fairly standard13
+            suspendThreadC > 0, //Suspended a thread -> Suspicious14
+            createRemoteThreadC > 0 && suspendThreadC > 0, //Likely process injection -> Very suspicious15
+            createFileM > createFileT, //Opening lots of files -> Unusual16
+            findFirstFileM > findFirstFileT, //Lots of directory searches -> Suspicious17
+            writeFileM > writeFileT, //Lots of high entropy writes -> Very suspicious18
+            deleteFileM > deleteFileT, //Lots of file deletes -> Very suspicious19
+            winExecC > 0 || createProcessC > 0, //Starting vssadmin or bcdedit -> Very suspicious/Basically sufficient20
+            createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient21
         };
         //Half the signs are enough
         double sum = signWeights.Sum() / 2;
@@ -309,7 +311,7 @@ class IntelliMod
     private void handleRansomware()
     {
         //Suspend and notify
-        if (UI.suspendRadioButton.Checked)
+        if (UI.killRadioButton.Checked)
         {
             //Get all of the process's threads
             ProcessThreadCollection threads = Process.GetProcessById(processID).Threads;
@@ -345,7 +347,7 @@ class IntelliMod
 
         }
         //Kill and notify
-        if (UI.killRadioButton.Checked)
+        if (UI.suspendRadioButton.Checked)
         {
             MessageBox.Show(
                 "Suspicious activity detected. " + nktProc.Name + " was terminated.",
@@ -358,7 +360,7 @@ class IntelliMod
         {
             if (UI.debugCheckBox.Checked)
             {
-                FormInterface.listViewAddItem(UI.signsListView, nktProc + " may be ransomware");
+                FormInterface.listViewAddItem(UI.signsListView, nktProc.Name + " may be ransomware");
             }
         }
     }

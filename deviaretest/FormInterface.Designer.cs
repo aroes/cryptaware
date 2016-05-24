@@ -39,8 +39,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.debugCheckBox = new System.Windows.Forms.CheckBox();
             this.signsListView = new System.Windows.Forms.ListView();
-            this.killRadioButton = new System.Windows.Forms.RadioButton();
             this.suspendRadioButton = new System.Windows.Forms.RadioButton();
+            this.killRadioButton = new System.Windows.Forms.RadioButton();
             this.panel1 = new System.Windows.Forms.Panel();
             this.passiveRadioButton = new System.Windows.Forms.RadioButton();
             this.panel1.SuspendLayout();
@@ -154,34 +154,34 @@
             this.signsListView.UseCompatibleStateImageBehavior = false;
             this.signsListView.View = System.Windows.Forms.View.List;
             // 
-            // killRadioButton
-            // 
-            this.killRadioButton.AutoSize = true;
-            this.killRadioButton.Checked = true;
-            this.killRadioButton.Location = new System.Drawing.Point(3, 7);
-            this.killRadioButton.Name = "killRadioButton";
-            this.killRadioButton.Size = new System.Drawing.Size(96, 17);
-            this.killRadioButton.TabIndex = 8;
-            this.killRadioButton.TabStop = true;
-            this.killRadioButton.Text = "Suspend mode";
-            this.killRadioButton.UseVisualStyleBackColor = true;
-            // 
             // suspendRadioButton
             // 
             this.suspendRadioButton.AutoSize = true;
-            this.suspendRadioButton.Location = new System.Drawing.Point(3, 30);
+            this.suspendRadioButton.Checked = true;
+            this.suspendRadioButton.Location = new System.Drawing.Point(3, 7);
             this.suspendRadioButton.Name = "suspendRadioButton";
-            this.suspendRadioButton.Size = new System.Drawing.Size(67, 17);
-            this.suspendRadioButton.TabIndex = 9;
-            this.suspendRadioButton.Text = "Kill mode";
+            this.suspendRadioButton.Size = new System.Drawing.Size(96, 17);
+            this.suspendRadioButton.TabIndex = 8;
+            this.suspendRadioButton.TabStop = true;
+            this.suspendRadioButton.Text = "Suspend mode";
             this.suspendRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // killRadioButton
+            // 
+            this.killRadioButton.AutoSize = true;
+            this.killRadioButton.Location = new System.Drawing.Point(3, 30);
+            this.killRadioButton.Name = "killRadioButton";
+            this.killRadioButton.Size = new System.Drawing.Size(67, 17);
+            this.killRadioButton.TabIndex = 9;
+            this.killRadioButton.Text = "Kill mode";
+            this.killRadioButton.UseVisualStyleBackColor = true;
             // 
             // panel1
             // 
             this.panel1.Controls.Add(this.passiveRadioButton);
-            this.panel1.Controls.Add(this.suspendRadioButton);
-            this.panel1.Controls.Add(this.debugCheckBox);
             this.panel1.Controls.Add(this.killRadioButton);
+            this.panel1.Controls.Add(this.debugCheckBox);
+            this.panel1.Controls.Add(this.suspendRadioButton);
             this.panel1.Location = new System.Drawing.Point(12, 212);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(226, 101);
@@ -235,8 +235,8 @@
         public System.Windows.Forms.CheckBox debugCheckBox;
         public System.Windows.Forms.ListView signsListView;
         private System.Windows.Forms.Panel panel1;
-        public System.Windows.Forms.RadioButton killRadioButton;
         public System.Windows.Forms.RadioButton suspendRadioButton;
+        public System.Windows.Forms.RadioButton killRadioButton;
         public System.Windows.Forms.RadioButton passiveRadioButton;
     }
 }
