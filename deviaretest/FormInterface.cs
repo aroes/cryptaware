@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Nektra.Deviare2;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using System.IO;
 
 namespace deviaretest
@@ -72,10 +64,11 @@ namespace deviaretest
             }
         }
 
-
-        private void startServiceButton_Click(object sender, EventArgs e)
+        #region Events
+        private void startButton_Click(object sender, EventArgs e)
         {
-            startServiceButton.Enabled = false;
+            startButton.Enabled = false;
+            startButton.BackgroundImage = Properties.Resources.eyecg;
             procWatcher.StartService();
 
         }
@@ -89,6 +82,8 @@ namespace deviaretest
                 signsListView.Items.Clear();
             }
         }
+
+        #endregion
 
         private void FormInterface_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {

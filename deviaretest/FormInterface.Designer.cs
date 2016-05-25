@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.startServiceButton = new System.Windows.Forms.Button();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormInterface));
             this.processListView = new System.Windows.Forms.ListView();
             this.caProcess = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.label1 = new System.Windows.Forms.Label();
@@ -43,19 +43,9 @@
             this.killRadioButton = new System.Windows.Forms.RadioButton();
             this.panel1 = new System.Windows.Forms.Panel();
             this.passiveRadioButton = new System.Windows.Forms.RadioButton();
+            this.startButton = new RoundButton();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // startServiceButton
-            // 
-            this.startServiceButton.BackColor = System.Drawing.SystemColors.Control;
-            this.startServiceButton.Location = new System.Drawing.Point(60, 63);
-            this.startServiceButton.Name = "startServiceButton";
-            this.startServiceButton.Size = new System.Drawing.Size(162, 57);
-            this.startServiceButton.TabIndex = 0;
-            this.startServiceButton.Text = "Start CryptAware service";
-            this.startServiceButton.UseVisualStyleBackColor = false;
-            this.startServiceButton.Click += new System.EventHandler(this.startServiceButton_Click);
             // 
             // processListView
             // 
@@ -65,7 +55,7 @@
             this.caProcess});
             this.processListView.Font = new System.Drawing.Font("Arial", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.processListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.processListView.Location = new System.Drawing.Point(244, 63);
+            this.processListView.Location = new System.Drawing.Point(266, 63);
             this.processListView.Name = "processListView";
             this.processListView.Size = new System.Drawing.Size(216, 273);
             this.processListView.TabIndex = 2;
@@ -82,7 +72,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(293, 44);
+            this.label1.Location = new System.Drawing.Point(315, 44);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(127, 16);
             this.label1.TabIndex = 3;
@@ -100,7 +90,7 @@
             this.time});
             this.calledFListView.Font = new System.Drawing.Font("Arial", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.calledFListView.FullRowSelect = true;
-            this.calledFListView.Location = new System.Drawing.Point(494, 63);
+            this.calledFListView.Location = new System.Drawing.Point(516, 63);
             this.calledFListView.Name = "calledFListView";
             this.calledFListView.Size = new System.Drawing.Size(353, 416);
             this.calledFListView.TabIndex = 4;
@@ -126,7 +116,7 @@
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(578, 44);
+            this.label2.Location = new System.Drawing.Point(600, 44);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(102, 16);
             this.label2.TabIndex = 5;
@@ -178,11 +168,12 @@
             // 
             // panel1
             // 
+            this.panel1.BackColor = System.Drawing.Color.Transparent;
             this.panel1.Controls.Add(this.passiveRadioButton);
             this.panel1.Controls.Add(this.killRadioButton);
             this.panel1.Controls.Add(this.debugCheckBox);
             this.panel1.Controls.Add(this.suspendRadioButton);
-            this.panel1.Location = new System.Drawing.Point(12, 212);
+            this.panel1.Location = new System.Drawing.Point(12, 235);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(226, 101);
             this.panel1.TabIndex = 10;
@@ -198,20 +189,36 @@
             this.passiveRadioButton.Text = "Passive mode";
             this.passiveRadioButton.UseVisualStyleBackColor = true;
             // 
+            // startButton
+            // 
+            this.startButton.BackgroundImage = global::deviaretest.Properties.Resources.eyec;
+            this.startButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.startButton.Location = new System.Drawing.Point(15, 24);
+            this.startButton.Name = "startButton";
+            this.startButton.Size = new System.Drawing.Size(205, 205);
+            this.startButton.TabIndex = 11;
+            this.startButton.UseVisualStyleBackColor = true;
+            this.startButton.Click += new System.EventHandler(this.startButton_Click);
+            // 
             // FormInterface
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(859, 491);
+            this.BackColor = System.Drawing.Color.White;
+            this.BackgroundImage = global::deviaretest.Properties.Resources.white_wallpaper_hd_522_best;
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.ClientSize = new System.Drawing.Size(881, 491);
+            this.Controls.Add(this.startButton);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.signsListView);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.calledFListView);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.processListView);
-            this.Controls.Add(this.startServiceButton);
+            this.DoubleBuffered = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormInterface";
-            this.Text = "Cryptaware";
+            this.Text = "CryptAware";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormInterface_FormClosed);
             this.Load += new System.EventHandler(this.FormInterface_Load);
             this.panel1.ResumeLayout(false);
@@ -222,8 +229,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button startServiceButton;
         public System.Windows.Forms.ListView processListView;
         private System.Windows.Forms.Label label1;
         public System.Windows.Forms.ListView calledFListView;
@@ -238,6 +243,7 @@
         public System.Windows.Forms.RadioButton suspendRadioButton;
         public System.Windows.Forms.RadioButton killRadioButton;
         public System.Windows.Forms.RadioButton passiveRadioButton;
+        private RoundButton startButton;
     }
 }
 

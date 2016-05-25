@@ -110,6 +110,9 @@
     <Compile Include="ProcessWatcher.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RoundButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="SectionSearch.cs" />
     <Compile Include="Win32_Process.CS">
       <SubType>Component</SubType>
@@ -125,6 +128,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -150,6 +154,18 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\eyecg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\eyec.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gbg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\white_wallpaper_hd_522_best.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
