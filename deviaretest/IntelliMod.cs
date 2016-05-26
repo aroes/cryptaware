@@ -216,20 +216,20 @@ class IntelliMod
     private double[] signWeights = {
             //String analysis
             20, //ransomLikelyhoodFromStrings > stringsThreshold, //Strings indicate ransomware
-            7,//foundExtensionsWhitelist || foundExtensionsBlacklist, //Memory contains a list of extensions
-            16,//foundExtensionsWhitelist ^ foundExtensionsBlacklist, //Memory contains a whitelist xor a blacklist (most likely in ransomware)
+            5,//foundExtensionsWhitelist || foundExtensionsBlacklist, //Memory contains a list of extensions
+            15,//foundExtensionsWhitelist ^ foundExtensionsBlacklist, //Memory contains a whitelist xor a blacklist (most likely in ransomware)
             //Call analysis
             15,//startup, //Program installed itself into startup -> Suspicious
             10,//cryptAcquireContextC > 0, //Some AES/RSA cryptography
             5,//cryptImportKeyC > 0, //Imported a key
-            6,//cryptGenKeyM > 0, //Generated a key
-            18,//cryptGenKeyM > cryptGenKeyT, //Generating lots of keys -> Very suspicious
-            16,//cryptEncryptM > cryptEncryptT, //Encrypting lots of things -> Suspicious
-            7,//cryptExportKeyM > 0, //Exported a key
+            5,//cryptGenKeyM > 0, //Generated a key
+            20,//cryptGenKeyM > cryptGenKeyT, //Generating lots of keys -> Very suspicious
+            15,//cryptEncryptM > cryptEncryptT, //Encrypting lots of things -> Suspicious
+            5,//cryptExportKeyM > 0, //Exported a key
             10,//cryptExportKeyM > cryptExportKeyT, //Exporting lots of keys -> Suspicious
-            7,//cryptDestroyKeyM > 0, //Destroyed a key
-            16,//cryptDestroyKeyM > cryptDestroyKeyT, //Destroying lots of keys -> Very suspicious
-            5, //getComputerNameC > 0, //Collecting ComputerName ->Fairly standard
+            10,//cryptDestroyKeyM > 0, //Destroyed a key
+            15,//cryptDestroyKeyM > cryptDestroyKeyT, //Destroying lots of keys -> Very suspicious
+            5,//getComputerNameC > 0, //Collecting ComputerName ->Fairly standard
             15,//suspendThreadC > 0, //Suspended a thread -> Suspicious
             15,//createRemoteThreadC > 0 && suspendThreadC > 0, //Likely process injection -> Very suspicious
             10,//createFileM > createFileT, //Opening lots of files -> Unusual

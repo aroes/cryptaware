@@ -37,32 +37,77 @@ namespace deviaretest
         }
 
 
-        //Thread safe UI update
-        public static void listViewAddItem(ListView varListView, string s)
+        #region Thread safe UI update
+        //Add item by string
+        public static void listViewAddItem(ListView varListView, string text)
         {
-            ListViewItem item = new ListViewItem(s);
             if (varListView.InvokeRequired)
             {
-                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItem(varListView, s)));
+                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItem(varListView, text)));
             }
             else
             {
+                ListViewItem item = new ListViewItem(text);
+                varListView.Items.Add(item);
+            }
+        }
+        //Add item by string with name
+        public static void listViewAddItem(ListView varListView, string text, string name)
+        {
+            if (varListView.InvokeRequired)
+            {
+                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItem(varListView, text, name)));
+            }
+            else
+            {
+                ListViewItem item = new ListViewItem(text);
+                item.Name = name;
                 varListView.Items.Add(item);
             }
         }
 
+        //Add item row
         public static void listViewAddItemRange(ListView varListView, string s, string[] row)
         {
-            ListViewItem item = new ListViewItem(s);
             if (varListView.InvokeRequired)
             {
                 varListView.BeginInvoke(new MethodInvoker(() => listViewAddItemRange(varListView, s, row)));
             }
             else
             {
+                ListViewItem item = new ListViewItem(s);
                 varListView.Items.Add(item).SubItems.AddRange(row);
             }
         }
+        //Add item row with name
+        public static void listViewAddItemRange(ListView varListView, string s, string[] row, string name)
+        {
+            if (varListView.InvokeRequired)
+            {
+                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItemRange(varListView, s, row)));
+            }
+            else
+            {
+                ListViewItem item = new ListViewItem(s);
+                item.Name = name;
+                varListView.Items.Add(item).SubItems.AddRange(row);
+            }
+        }
+
+        //Delete item by key (name
+        public static void listViewDelItem(ListView varListView, string key)
+        {
+            if (varListView.InvokeRequired)
+            {
+                varListView.BeginInvoke(new MethodInvoker(() => listViewDelItem(varListView, key)));
+            }
+            else
+            {
+                varListView.Items.RemoveByKey(key);
+            }
+        }
+
+        #endregion
 
         #region Events
         private void startButton_Click(object sender, EventArgs e)

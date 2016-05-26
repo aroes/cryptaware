@@ -162,10 +162,7 @@
     <None Include="Resources\eyec.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\gbg.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\white_wallpaper_hd_522_best.jpg" />
+    <None Include="Resources\formbg.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

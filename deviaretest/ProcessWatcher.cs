@@ -101,6 +101,7 @@ public class ProcessWatcher
         hManagers.Remove(terminatedProcess.Id);
         File.Delete(terminatedProcess.Id.ToString() + ".mca");
         Debug.WriteLine("Terminated " + terminatedProcess.Name + ' ' + terminatedProcess.Id + " DateTime:" + DateTime.Now);
+        FormInterface.listViewDelItem(UI.processListView, terminatedProcess.Id.ToString());
     }
 
     [MTAThread]

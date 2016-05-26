@@ -83,9 +83,9 @@ namespace deviaretest.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap gbg {
+        internal static System.Drawing.Bitmap formbg {
             get {
-                object obj = ResourceManager.GetObject("gbg", resourceCulture);
+                object obj = ResourceManager.GetObject("formbg", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -93,9 +93,9 @@ namespace deviaretest.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap white_wallpaper_hd_522_best {
+        internal static System.Drawing.Bitmap gbg {
             get {
-                object obj = ResourceManager.GetObject("white_wallpaper_hd_522_best", resourceCulture);
+                object obj = ResourceManager.GetObject("gbg", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

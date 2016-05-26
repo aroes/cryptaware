@@ -95,8 +95,9 @@ namespace deviaretest
 
                 if (UI.debugCheckBox.Checked)
                 {
+                    string text = process.Name + ' ' + process.PlatformBits;
                     //Display the new process on the UI
-                    FormInterface.listViewAddItem(UI.processListView, process.Name + ' ' + process.PlatformBits);
+                    FormInterface.listViewAddItem(UI.processListView, text, process.Id.ToString());
                 }
                 Debug.WriteLine("Success");
             }
