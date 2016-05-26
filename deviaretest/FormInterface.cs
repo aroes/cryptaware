@@ -84,7 +84,7 @@ namespace deviaretest
         {
             if (varListView.InvokeRequired)
             {
-                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItemRange(varListView, s, row)));
+                varListView.BeginInvoke(new MethodInvoker(() => listViewAddItemRange(varListView, s, row, name)));
             }
             else
             {
@@ -120,7 +120,7 @@ namespace deviaretest
 
         private void debugCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if(debugCheckBox.Checked == false)
+            if (debugCheckBox.Checked == false)
             {
                 processListView.Items.Clear();
                 calledFListView.Items.Clear();
@@ -146,7 +146,28 @@ namespace deviaretest
                 File.Delete(file);
             }
         }
+        
 
+        private void processListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            signCountListView.Items.Clear();
+            if (e.IsSelected)
+            {
+                ListViewItem item = e.Item;
+                string pid = item.Name;
+                procWatcher.hManagers[Convert.ToInt32(pid)].intelligence.displaySigns();
+            }
+        }
 
+        private void signCountListView_Click(object sender, EventArgs e)
+        {
+            signCountListView.Items.Clear();
+            ListView lv = processListView;
+            if (lv.SelectedItems.Count > 0)
+            {
+                string pid = lv.SelectedItems[0].Name;
+                procWatcher.hManagers[Convert.ToInt32(pid)].intelligence.displaySigns();
+            }
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace deviaretest
 
         private FormInterface UI;
         private ProcessWatcher pw;
-        private IntelliMod intelligence;
+        internal IntelliMod intelligence;
 
         //The process associated with this hookmanager
         private NktProcess process;
@@ -93,12 +93,11 @@ namespace deviaretest
 
 
 
-                if (UI.debugCheckBox.Checked)
-                {
-                    string text = process.Name + ' ' + process.PlatformBits;
-                    //Display the new process on the UI
-                    FormInterface.listViewAddItem(UI.processListView, text, process.Id.ToString());
-                }
+                //Display the new process on the UI
+                string text = process.Name + ' ' + process.PlatformBits;
+                string[] row = { process.Id.ToString() };
+                FormInterface.listViewAddItemRange(UI.processListView, text, row, process.Id.ToString());
+
                 Debug.WriteLine("Success");
             }
             catch (NullReferenceException)

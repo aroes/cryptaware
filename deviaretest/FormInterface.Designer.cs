@@ -43,6 +43,11 @@
             this.killRadioButton = new System.Windows.Forms.RadioButton();
             this.panel1 = new System.Windows.Forms.Panel();
             this.passiveRadioButton = new System.Windows.Forms.RadioButton();
+            this.signCountListView = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.startButton = new RoundButton();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -52,20 +57,24 @@
             this.processListView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.processListView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.processListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.caProcess});
+            this.caProcess,
+            this.columnHeader4});
             this.processListView.Font = new System.Drawing.Font("Arial", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.processListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.processListView.Location = new System.Drawing.Point(266, 63);
+            this.processListView.HideSelection = false;
+            this.processListView.Location = new System.Drawing.Point(364, 63);
+            this.processListView.MultiSelect = false;
             this.processListView.Name = "processListView";
             this.processListView.Size = new System.Drawing.Size(216, 273);
             this.processListView.TabIndex = 2;
             this.processListView.UseCompatibleStateImageBehavior = false;
             this.processListView.View = System.Windows.Forms.View.Details;
+            this.processListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.processListView_ItemSelectionChanged);
             // 
             // caProcess
             // 
             this.caProcess.Text = "Process";
-            this.caProcess.Width = 170;
+            this.caProcess.Width = 160;
             // 
             // label1
             // 
@@ -73,7 +82,7 @@
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(315, 44);
+            this.label1.Location = new System.Drawing.Point(413, 44);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(127, 16);
             this.label1.TabIndex = 3;
@@ -91,9 +100,9 @@
             this.time});
             this.calledFListView.Font = new System.Drawing.Font("Arial", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.calledFListView.FullRowSelect = true;
-            this.calledFListView.Location = new System.Drawing.Point(516, 63);
+            this.calledFListView.Location = new System.Drawing.Point(596, 476);
             this.calledFListView.Name = "calledFListView";
-            this.calledFListView.Size = new System.Drawing.Size(353, 416);
+            this.calledFListView.Size = new System.Drawing.Size(355, 416);
             this.calledFListView.TabIndex = 4;
             this.calledFListView.UseCompatibleStateImageBehavior = false;
             this.calledFListView.View = System.Windows.Forms.View.Details;
@@ -118,11 +127,11 @@
             this.label2.AutoSize = true;
             this.label2.BackColor = System.Drawing.Color.Transparent;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(600, 44);
+            this.label2.Location = new System.Drawing.Point(734, 44);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(102, 16);
+            this.label2.Size = new System.Drawing.Size(66, 16);
             this.label2.TabIndex = 5;
-            this.label2.Text = "Called functions";
+            this.label2.Text = "Indicators";
             this.label2.UseMnemonic = false;
             // 
             // debugCheckBox
@@ -190,6 +199,44 @@
             this.passiveRadioButton.Text = "Passive mode";
             this.passiveRadioButton.UseVisualStyleBackColor = true;
             // 
+            // signCountListView
+            // 
+            this.signCountListView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.signCountListView.AutoArrange = false;
+            this.signCountListView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.signCountListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2,
+            this.columnHeader3});
+            this.signCountListView.Font = new System.Drawing.Font("Arial", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.signCountListView.FullRowSelect = true;
+            this.signCountListView.Location = new System.Drawing.Point(596, 63);
+            this.signCountListView.Name = "signCountListView";
+            this.signCountListView.Size = new System.Drawing.Size(355, 390);
+            this.signCountListView.TabIndex = 12;
+            this.signCountListView.UseCompatibleStateImageBehavior = false;
+            this.signCountListView.View = System.Windows.Forms.View.Details;
+            this.signCountListView.Click += new System.EventHandler(this.signCountListView_Click);
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Indicator Name";
+            this.columnHeader1.Width = 215;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "Value";
+            this.columnHeader2.Width = 55;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "Suspicious";
+            this.columnHeader3.Width = 85;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "PID";
+            // 
             // startButton
             // 
             this.startButton.BackgroundImage = global::deviaretest.Properties.Resources.eyec;
@@ -208,7 +255,8 @@
             this.BackColor = System.Drawing.Color.White;
             this.BackgroundImage = global::deviaretest.Properties.Resources.formbg;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(881, 491);
+            this.ClientSize = new System.Drawing.Size(979, 597);
+            this.Controls.Add(this.signCountListView);
             this.Controls.Add(this.startButton);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.signsListView);
@@ -245,6 +293,11 @@
         public System.Windows.Forms.RadioButton killRadioButton;
         public System.Windows.Forms.RadioButton passiveRadioButton;
         private RoundButton startButton;
+        public System.Windows.Forms.ListView signCountListView;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.ColumnHeader columnHeader4;
     }
 }
 

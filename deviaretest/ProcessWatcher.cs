@@ -14,7 +14,7 @@ public class ProcessWatcher
     private static ProcessWatcher pWatcher;
     internal NktSpyMgr spyMgr;
     private FormInterface UI;
-    private Dictionary<int, HookManager> hManagers;
+    internal Dictionary<int, HookManager> hManagers;
     private ManualResetEvent shutdownDeviareEvent = new ManualResetEvent(false);
     private ManualResetEvent deviareInitializedEvent = new ManualResetEvent(false);
 
@@ -98,10 +98,20 @@ public class ProcessWatcher
     [MTAThread]
     private void HandleTerminatedProcess(NktProcess terminatedProcess)
     {
-        hManagers.Remove(terminatedProcess.Id);
-        File.Delete(terminatedProcess.Id.ToString() + ".mca");
-        Debug.WriteLine("Terminated " + terminatedProcess.Name + ' ' + terminatedProcess.Id + " DateTime:" + DateTime.Now);
-        FormInterface.listViewDelItem(UI.processListView, terminatedProcess.Id.ToString());
+        //All the subsequent calls can fail safely
+        if (terminatedProcess.PlatformBits == 32)
+        {
+            try
+            {
+                hManagers[terminatedProcess.Id].intelligence.killTimer();
+            }
+            catch (Exception ex) when (ex is NullReferenceException || ex is KeyNotFoundException)
+            {
+                Debug.WriteLine("Timer release failed");
+            }
+            File.Delete(terminatedProcess.Id.ToString() + ".mca");
+            Debug.WriteLine("Terminated " + terminatedProcess.Name + ' ' + terminatedProcess.Id + " DateTime:" + DateTime.Now);
+        }
     }
 
     [MTAThread]

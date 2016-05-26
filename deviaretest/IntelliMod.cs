@@ -158,9 +158,44 @@ class IntelliMod
         nktProc = process;
         this.searcher = new SectionSearch(process, false);
         //Set the timer to trigger decay() every x seconds
-        timer.Elapsed += new ElapsedEventHandler(decay);
+        timer.Elapsed += decay;
         timer.Interval = 20000;
         timer.Enabled = true;
+    }
+
+    internal void killTimer()
+    {
+        timer.Elapsed -= decay;
+        timer.Enabled = false;
+    }
+
+    internal void displaySigns()
+    {
+        displaySign("Startup install", startup ? 1 : 0, 0);
+        displaySign("Some AES/RSA cryptography", cryptAcquireContextC, 0);
+        displaySign("Key import", cryptImportKeyC, 0);
+        displaySign("Key generation", cryptGenKeyM, cryptGenKeyT);
+        displaySign("Encryption", cryptEncryptM, cryptEncryptT);
+        displaySign("Key export", cryptExportKeyM, cryptExportKeyT);
+        displaySign("Key destruction", cryptDestroyKeyM, cryptDestroyKeyT);
+        displaySign("Collecting PC name", getComputerNameC, 0);
+        displaySign("Suspend thread call", suspendThreadC, 0);
+        displaySign("Created remote thread", createRemoteThreadC, 0);
+        displaySign("Opened or created a file", createFileM, createFileT);
+        displaySign("Searching for files", findFirstFileM, findFirstFileT);
+        displaySign("High entropy file write", writeFileM, writeFileT);
+        displaySign("File deletion", deleteFileM, deleteFileT);
+        displaySign("Unusual WinExec", winExecC, 0);
+        displaySign("Unusual CreateProcess", createProcessC, 0);
+        displaySign("Overall suspicion", maxLikelyhood, overallThreshold);
+    }
+
+    private void displaySign(string name, double value, double threshold)
+    {
+        string[] row = new string[2];
+        row[0] = value.ToString();
+        row[1] = value > threshold ? "Yes" : "No";
+        FormInterface.listViewAddItemRange(UI.signCountListView, name, row);
     }
 
     //Apply linear decay for relevant count values; also sets the maximum values when needed
@@ -211,8 +246,9 @@ class IntelliMod
     double maxLikelyhood = 0;
 
     //Threshold for likelyhood
-    private double overallThreshold = 0.65;
+    private double overallThreshold = 0.25;
 
+    #region Sign lists (update them together)
     private double[] signWeights = {
             //String analysis
             20, //ransomLikelyhoodFromStrings > stringsThreshold, //Strings indicate ransomware
@@ -240,14 +276,9 @@ class IntelliMod
             20//createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient
         };
 
-
-    //Considering all calls, determine if this process is malicious
-    private void evaluate()
+    //Gets the true or false values for each indicator
+    private bool[] aggregateSigns()
     {
-        //0-1 is this program ransomware
-        double tempLikelyhood = 0;
-        //Get up to date Max values
-        refreshMax();
         //Aggregate all indicators
         bool[] signs = {
             //String analysis
@@ -275,6 +306,19 @@ class IntelliMod
             winExecC > 0 || createProcessC > 0, //Starting vssadmin or bcdedit -> Very suspicious/Basically sufficient20
             createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient21
         };
+        return signs;
+    }
+
+    #endregion
+
+    //Considering all calls, determine if this process is malicious
+    private void evaluate()
+    {
+        //0-1 is this program ransomware
+        double tempLikelyhood = 0;
+        //Get up to date Max values
+        refreshMax();
+        bool[] signs = aggregateSigns();
         double sum = signWeights.Sum();
         for (int i = 0; i < signs.Length; i++)
         {
