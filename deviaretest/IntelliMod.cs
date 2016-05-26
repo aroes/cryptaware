@@ -54,17 +54,17 @@ class IntelliMod
     private static double[] suspiciousStringsWeights = {8,//encrypted
         5,//aes
         5,//rsa
-        6,//payment
-        4,//pay
-        9,//bitcoin
+        5,//payment
+        5,//pay
+        10,//bitcoin
         20,//moneypak
-        10,//ransom
+        15,//ransom
         20,//vssadmin
-        4,//protected
-        4,//restore
-        4,//tor 
-        9,//tor browser
-        7 };//private key
+        5,//protected
+        5,//restore
+        5,//tor 
+        10,//tor browser
+        10 };//private key
 
     private static string[] whitelist = {"3dm",
         "3ds",
