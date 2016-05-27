@@ -187,6 +187,7 @@ class IntelliMod
         displaySign("File deletion", deleteFileM, deleteFileT);
         displaySign("Unusual WinExec", winExecC, 0);
         displaySign("Unusual CreateProcess", createProcessC, 0);
+        displaySign("String suspicion", ransomLikelyhoodFromStrings, stringsThreshold);
         displaySign("Overall suspicion", maxLikelyhood, overallThreshold);
     }
 
@@ -272,8 +273,8 @@ class IntelliMod
             10,//findFirstFileM > findFirstFileT, //Lots of directory searches -> Suspicious
             15,//writeFileM > writeFileT, //Lots of high entropy writes -> Very suspicious
             20,//deleteFileM > deleteFileT, //Lots of file deletes -> Very suspicious
-            20,//winExecC > 0 || createProcessC > 0, //Starting vssadmin or bcdedit -> Very suspicious/Basically sufficient
-            20//createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient
+            25,//winExecC > 0 || createProcessC > 0, //Starting vssadmin or bcdedit -> Very suspicious/Basically sufficient
+            25//createFileM > createFileT && findFirstFileM > findFirstFileT && writeFileM > writeFileT //All ransomware file ops -> Almost sufficient
         };
 
     //Gets the true or false values for each indicator
@@ -518,7 +519,6 @@ class IntelliMod
     internal void foundStartup()
     {
         startup = true;
-        //scanMemory();
         //Display sign on the UI
         if (UI.debugCheckBox.Checked)
         {

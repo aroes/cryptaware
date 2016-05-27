@@ -118,14 +118,6 @@ public class ProcessWatcher
     //When a hooked function executes
     private void OnFunctionCalled(NktHook hook, INktProcess proc, INktHookCallInfo callInfo)
     {
-        if (UI.debugCheckBox.Checked)
-        {
-            //Display call on the UI
-            string[] row = { proc.Name, DateTime.Now.ToString("h:mm:ss") };
-            FormInterface.listViewAddItemRange(UI.calledFListView, hook.FunctionName, row);
-        }
-
-
         //Call the function specific handler from string
         //1:Split function name to the right of '!' and add the handler tag
         string mn = hook.FunctionName.Substring(hook.FunctionName.LastIndexOf('!') + 1) + 'H';

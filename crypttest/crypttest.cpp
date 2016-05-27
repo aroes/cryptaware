@@ -46,8 +46,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	Sleep(1500);
-	char lul[] = "lul.exe";
-	WinExec(lul, 5);
+
 
 	//---------------------------------------------------------------
 	// Call EncryptFile to do the actual encryption.
@@ -126,6 +125,23 @@ bool MyEncryptFile(
 			TEXT("Error opening source plaintext file!\n"),
 			GetLastError());
 		goto Exit_MyEncryptFile;
+	}
+
+	//CreateDeleteAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA________________
+	for (int i = 0; i < 50; i++) {
+		hDestinationFile = CreateFile(
+			pszDestinationFile,
+			FILE_WRITE_DATA,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL);
+		DeleteFile(pszDestinationFile);
+		if (hDestinationFile)
+		{
+			CloseHandle(hDestinationFile);
+		}
 	}
 
 	//---------------------------------------------------------------

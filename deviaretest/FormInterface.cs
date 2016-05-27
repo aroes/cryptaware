@@ -122,8 +122,6 @@ namespace deviaretest
         {
             if (debugCheckBox.Checked == false)
             {
-                processListView.Items.Clear();
-                calledFListView.Items.Clear();
                 signsListView.Items.Clear();
             }
         }

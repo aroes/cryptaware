@@ -114,9 +114,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="SectionSearch.cs" />
-    <Compile Include="Win32_Process.CS">
-      <SubType>Component</SubType>
-    </Compile>
     <EmbeddedResource Include="FormInterface.resx">
       <DependentUpon>FormInterface.cs</DependentUpon>
     </EmbeddedResource>
