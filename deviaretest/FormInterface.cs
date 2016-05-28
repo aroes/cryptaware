@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 
-namespace deviaretest
+namespace CryptAware
 
 {
     public partial class FormInterface : Form
@@ -94,7 +94,7 @@ namespace deviaretest
             }
         }
 
-        //Delete item by key (name
+        //Delete item by key (name)
         public static void listViewDelItem(ListView varListView, string key)
         {
             if (varListView.InvokeRequired)
@@ -107,9 +107,23 @@ namespace deviaretest
             }
         }
 
+        //Clear items
+        public static void listViewItemsClear(ListView varListView)
+        {
+            if (varListView.InvokeRequired)
+            {
+                varListView.BeginInvoke(new MethodInvoker(() => listViewItemsClear(varListView)));
+            }
+            else
+            {
+                varListView.Items.Clear();
+            }
+        }
+
         #endregion
 
         #region Events
+        //Start monitoring
         private void startButton_Click(object sender, EventArgs e)
         {
             startButton.Enabled = false;
@@ -117,22 +131,50 @@ namespace deviaretest
             procWatcher.StartService();
 
         }
-
-        private void debugCheckBox_CheckedChanged(object sender, EventArgs e)
+        //Get signs for clicked process
+        private void processListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            if (debugCheckBox.Checked == false)
+            signCountListView.Items.Clear();
+            stringListView.Items.Clear();
+            if (e.IsSelected)
             {
-                signsListView.Items.Clear();
+                ListViewItem item = e.Item;
+                string pid = item.Name;
+                procWatcher.hManagers[Convert.ToInt32(pid)].intelligence.displaySigns();
+                procWatcher.hManagers[Convert.ToInt32(pid)].intelligence.displayStrings();
+            }
+        }
+        //Refresh sign list on click
+        private void signCountListView_Click(object sender, EventArgs e)
+        {
+            signCountListView.Items.Clear();
+            if (processListView.SelectedItems.Count > 0)
+            {
+                string pid = processListView.SelectedItems[0].Name;
+                procWatcher.hManagers[Convert.ToInt32(pid)].intelligence.displaySigns();
+            }
+        }
+        //Refresh string list on click
+        private void stringListView_Click(object sender, EventArgs e)
+        {
+            stringListView.Items.Clear();
+            if (processListView.SelectedItems.Count > 0)
+            {
+                string pid = processListView.SelectedItems[0].Name;
+                procWatcher.hManagers[Convert.ToInt32(pid)].intelligence.displayStrings();
             }
         }
 
         #endregion
 
-        private void FormInterface_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void FormInterface_Closing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to exit?", "Confirm exit", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (e.CloseReason == CloseReason.UserClosing)
             {
+                this.Hide();
                 e.Cancel = true;
+                notifyIcon.BalloonTipText = "Minimized";
+                notifyIcon.ShowBalloonTip(10);
             }
         }
 
@@ -144,28 +186,23 @@ namespace deviaretest
                 File.Delete(file);
             }
         }
-        
 
-        private void processListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        private void exitMenuItem_Click(object sender, EventArgs e)
         {
-            signCountListView.Items.Clear();
-            if (e.IsSelected)
-            {
-                ListViewItem item = e.Item;
-                string pid = item.Name;
-                procWatcher.hManagers[Convert.ToInt32(pid)].intelligence.displaySigns();
-            }
+            Application.Exit();
         }
 
-        private void signCountListView_Click(object sender, EventArgs e)
+        private void notifyIcon_DoubleClick(object sender, EventArgs e)
         {
-            signCountListView.Items.Clear();
-            ListView lv = processListView;
-            if (lv.SelectedItems.Count > 0)
-            {
-                string pid = lv.SelectedItems[0].Name;
-                procWatcher.hManagers[Convert.ToInt32(pid)].intelligence.displaySigns();
-            }
+            this.Show();
+        }
+
+        private void whiteListButton_Click(object sender, EventArgs e)
+        {
+            whiteListButton.Enabled = false;
+            WhitelistManager wlm = new WhitelistManager();
+            // Display the new form.
+            wlm.Show();
         }
     }
 }

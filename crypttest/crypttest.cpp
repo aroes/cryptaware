@@ -127,7 +127,7 @@ bool MyEncryptFile(
 		goto Exit_MyEncryptFile;
 	}
 
-	//CreateDeleteAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA________________
+	//CreateDeleteLOOP
 	for (int i = 0; i < 50; i++) {
 		hDestinationFile = CreateFile(
 			pszDestinationFile,

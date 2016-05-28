@@ -1,8 +1,9 @@
-﻿using deviaretest;
+﻿using CryptAware;
 using Nektra.Deviare2;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Timers;
@@ -14,6 +15,7 @@ class IntelliMod
     private int processID;
     private Process winProc;
     private NktProcess nktProc;
+    private bool ignore = false;
     private FormInterface UI = FormInterface.GetInstance();
 
     #region Strings evaluation fields
@@ -35,6 +37,8 @@ class IntelliMod
     bool foundExtensionsWhitelist = false;
     bool foundExtensionsBlacklist = false;
 
+    bool[] discoveredStrings = new bool[suspiciousStrings.Length];
+
     //While not particularly legible, this dual array method to match strings to weights is the most straightforward
     private static string[] suspiciousStrings = {"encrypted",
         "aes ",
@@ -51,12 +55,12 @@ class IntelliMod
         "tor browser",
         "private key",};
 
-    private static double[] suspiciousStringsWeights = {8,//encrypted
+    private static double[] suspiciousStringsWeights = {5,//encrypted
         5,//aes
         5,//rsa
         5,//payment
         5,//pay
-        10,//bitcoin
+        15,//bitcoin
         20,//moneypak
         15,//ransom
         20,//vssadmin
@@ -105,6 +109,7 @@ class IntelliMod
     #endregion
 
     #region Number of calls fields
+    //Decay timer
     private System.Timers.Timer timer = new System.Timers.Timer();
     //Use Max value when it exists, C otherwise (if M value does not exists it means C is exempt from the decay process)
     //C suffix is count; T suffix is threshold; M is maximum; D is decay amount
@@ -162,13 +167,14 @@ class IntelliMod
         timer.Interval = 20000;
         timer.Enabled = true;
     }
-
+    //Stop decaying (for when the tracked process terminates)
     internal void killTimer()
     {
         timer.Elapsed -= decay;
         timer.Enabled = false;
     }
 
+    //Display sign list on UI
     internal void displaySigns()
     {
         displaySign("Startup install", startup ? 1 : 0, 0);
@@ -191,6 +197,7 @@ class IntelliMod
         displaySign("Overall suspicion", maxLikelyhood, overallThreshold);
     }
 
+    //Helper to display signs on UI
     private void displaySign(string name, double value, double threshold)
     {
         string[] row = new string[2];
@@ -206,19 +213,19 @@ class IntelliMod
         refreshMax();
         //Then subtract the decay value from the count (dont let it drop below 0)
         cryptGenKeyC = Math.Max(cryptGenKeyC - cryptGenKeyD, 0);
-    
+
         cryptEncryptC = Math.Max(cryptEncryptC - cryptEncryptD, 0);
-        
+
         cryptExportKeyC = Math.Max(cryptExportKeyC - cryptExportKeyD, 0);
-        
+
         cryptDestroyKeyC = Math.Max(cryptDestroyKeyC - cryptDestroyKeyD, 0);
-        
+
         createFileC = Math.Max(createFileC - createFileD, 0);
-        
+
         findFirstFileC = Math.Max(findFirstFileC - findFirstFileD, 0);
-        
+
         writeFileC = Math.Max(writeFileC - writeFileD, 0);
-        
+
         deleteFileC = Math.Max(deleteFileC - deleteFileD, 0);
     }
     //Updates M values
@@ -328,15 +335,10 @@ class IntelliMod
                 tempLikelyhood += signWeights[i] / sum;
             }
         }
-        //Show likelyhood on UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "Overall likelyhood:" + tempLikelyhood);
-        }
         //Update max likelyhood 
         maxLikelyhood = Math.Max(maxLikelyhood, tempLikelyhood);
         //If process is ransomware
-        if (maxLikelyhood > overallThreshold)
+        if (maxLikelyhood > overallThreshold && !ignore)
         {
             handleRansomware();
         }
@@ -350,6 +352,8 @@ class IntelliMod
     static extern uint SuspendThread(IntPtr hThread);
     [DllImport("kernel32.dll")]
     static extern uint ResumeThread(IntPtr hThread);
+    [DllImport("kernel32.dll")]
+    static extern Boolean CloseHandle(IntPtr handle);
 
     //Notify user and suspend or kill process
     private void handleRansomware()
@@ -368,20 +372,34 @@ class IntelliMod
                 SuspendThread(hThread);
                 threadHandles.Add(hThread);
             }
+
             //Notify
             DialogResult result = MessageBox.Show(
-                "Suspicious activity detected and suspended in " + nktProc.Name + ". Do you want to resume it?",
+                "Suspicious activity detected and suspended in " + nktProc.Name + 
+                ".\n(" + nktProc.Path + ")\nIgnore and whitelist?",
                 "Warning",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Exclamation,
                 MessageBoxDefaultButton.Button2);
+
             if (result == DialogResult.Yes)
             {
                 //Resume process
                 foreach (IntPtr hThread in threadHandles)
                 {
                     ResumeThread(hThread);
+                    CloseHandle(hThread);
                 }
+                //Add path to whitelist file
+                if (!File.Exists(".\\whitelist.wca") || 
+                    !File.ReadAllText(".\\whitelist.wca").Contains(nktProc.Path, StringComparison.OrdinalIgnoreCase))
+                {
+                    StreamWriter sw = File.AppendText(".\\whitelist.wca");
+                    sw.WriteLine(nktProc.Path);
+                    sw.Close();
+                }
+                //Set intellimod to ignore
+                ignore = true;
             }
             else
             {
@@ -393,19 +411,16 @@ class IntelliMod
         //Kill and notify
         if (UI.killRadioButton.Checked)
         {
+            nktProc.Terminate();
             MessageBox.Show(
                 "Suspicious activity detected. " + nktProc.Name + " was terminated.",
                 "Warning",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Exclamation);
-            nktProc.Terminate();
         }
         if (UI.passiveRadioButton.Checked)
         {
-            if (UI.debugCheckBox.Checked)
-            {
-                FormInterface.listViewAddItem(UI.signsListView, nktProc.Name + " may be ransomware");
-            }
+            //Do something passive
         }
     }
 
@@ -447,21 +462,39 @@ class IntelliMod
             {
                 //Update likelyhood that that the program is ransomware
                 likelyhood += suspiciousStringsWeights[i] / sum;
-                //Display string on UI
-                if (UI.debugCheckBox.Checked)
-                {
-                    FormInterface.listViewAddItem(UI.signsListView, "String:" + suspiciousStrings[i]);
-                }
+                //Set string for display
+                discoveredStrings[i] = true;
             }
-        }
-        //Show likelyhood on UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "String suspicion:" + likelyhood);
         }
         return likelyhood;
 
     }
+    //Display string evaluation result to UI
+    internal void displayStrings()
+    {
+        for (int i = 0; i < suspiciousStrings.Length; i++)
+        {
+            if (discoveredStrings[i])
+            {
+                FormInterface.listViewAddItem(UI.stringListView, suspiciousStrings[i]);
+            }
+        }
+        FormInterface.listViewAddItem(UI.stringListView, "---------------");
+        if (foundExtensionsWhitelist && !foundExtensionsBlacklist)
+        {
+            FormInterface.listViewAddItem(UI.stringListView, "Found extension whitelist");
+        }
+        if (!foundExtensionsWhitelist && foundExtensionsBlacklist)
+        {
+            FormInterface.listViewAddItem(UI.stringListView, "Found extension blacklist");
+        }
+        if (foundExtensionsWhitelist && foundExtensionsBlacklist)
+        {
+            FormInterface.listViewAddItem(UI.stringListView, "Found extension list");
+        }
+        FormInterface.listViewAddItem(UI.stringListView, "String suspicion: " + ransomLikelyhoodFromStrings);
+    }
+
     //Updates class fields if it found a whitelist or blacklist of extensions
     private void scanForExtensions()
     {
@@ -480,10 +513,6 @@ class IntelliMod
         //If over half of the string were found
         if (wExtensionsCount > (double)whitelist.Length * wSuspiciousFraction)
         {
-            if (UI.debugCheckBox.Checked)
-            {
-                FormInterface.listViewAddItem(UI.signsListView, "Found whitelist");
-            }
             foundExtensionsWhitelist = true;
         }
 
@@ -496,13 +525,9 @@ class IntelliMod
                 bExtensionsCount++;
             }
         }
-        //If over half of the string were found
+        //If over 5/8 of the string were found
         if (bExtensionsCount > (double)blacklist.Length * bSuspiciousFraction)
         {
-            if (UI.debugCheckBox.Checked)
-            {
-                FormInterface.listViewAddItem(UI.signsListView, "Found blacklist");
-            }
             foundExtensionsBlacklist = true;
         }
     }
@@ -519,11 +544,6 @@ class IntelliMod
     internal void foundStartup()
     {
         startup = true;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "Startup Install");
-        }
         scanForSuspiciousStringsAndExtensions();
         evaluate();
     }
@@ -531,11 +551,6 @@ class IntelliMod
     internal void cryptAcquireContextS()
     {
         cryptAcquireContextC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "Acquired enhanced AES and RSA context");
-        }
         scanForSuspiciousStringsAndExtensions();
         evaluate();
     }
@@ -543,31 +558,16 @@ class IntelliMod
     internal void cryptImportKeyS()
     {
         cryptImportKeyC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "CryptImportKey call");
-        }
     }
 
     internal void cryptGenKeyS()
     {
         cryptGenKeyC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "CryptGenKey call");
-        }
     }
-
+    //scans + eval
     internal void cryptEncryptS()
     {
         cryptEncryptC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "CryptEncrypt call");
-        }
         scanForSuspiciousStringsAndExtensions();
         evaluate();
     }
@@ -575,139 +575,88 @@ class IntelliMod
     internal void cryptExportKeyS()
     {
         cryptExportKeyC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "CryptExportKey call");
-        }
     }
-    //scans
+    //scans + eval
     internal void cryptDestroyKeyS()
     {
         cryptDestroyKeyC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "CryptDestroyKey call");
-        }
         evaluate();
         scanForSuspiciousStringsAndExtensions();
     }
 
 
-    //Update ui, scan+eval only once
+    //scan+eval only once
     internal void getComputerNameS()
     {
         getComputerNameC++;
         //Only once
         if (getComputerNameC == 1)
         {
-            //Display sign on the UI
-            if (UI.debugCheckBox.Checked)
-            {
-                FormInterface.listViewAddItem(UI.signsListView, "Collection of PC Name");
-            }
             scanForSuspiciousStringsAndExtensions();
             evaluate();
         }
     }
-
+    //scan + eval
     internal void suspendThreadS()
     {
         suspendThreadC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "SuspendThread: possible process injection");
-        }
         scanForSuspiciousStringsAndExtensions();
         evaluate();
     }
-    //Update ui, eval, scans once
+    //eval, scans once
     internal void createRemoteThreadS()
     {
         createRemoteThreadC++;
-        //Display sign on the UI once
         if (createRemoteThreadC == 1)
         {
-            if (UI.debugCheckBox.Checked)
-            {
-                FormInterface.listViewAddItem(UI.signsListView, "CreateRemoteThread: possible process injection");
-            }
             scanForSuspiciousStringsAndExtensions();
             evaluate();
         }
 
     }
-    //File openings and creations (\appdata\ ignored). Ui and eval every 10
+    //File openings and creations (\appdata\ ignored). eval every 10
     internal void createFileS()
     {
         createFileC++;
         //Once every 10 calls
         if (createFileC % 10 == 0)
         {
-            //Display sign on the UI
-            if (UI.debugCheckBox.Checked)
-            {
-                FormInterface.listViewAddItem(UI.signsListView, "10xCreateFile");
-            }
             evaluate();
         }
     }
 
-    //Finding all files (\appdata\ ignored) update ui every 5
+    //Finding all files (\appdata\ ignored) eval every 5
     internal void findFirstFileS()
     {
         findFirstFileC++;
         //Once every 5 calls
         if (findFirstFileC % 5 == 0)
         {
-            //Display sign on the UI
-            if (UI.debugCheckBox.Checked)
-            {
-                FormInterface.listViewAddItem(UI.signsListView, "5xFinding all files in directory");
-            }
             evaluate();
         }
 
     }
-    //Finding all txt files (\appdata\ ignored) update ui every 5
+    //Finding all txt files (\appdata\ ignored) eval every 5
     internal void findFirstFileTxtS()
     {
         findFirstFileC++;
         //Once every 5 calls
         if (findFirstFileC % 5 == 0)
         {
-            //Display sign on the UI
-            if (UI.debugCheckBox.Checked)
-            {
-                FormInterface.listViewAddItem(UI.signsListView, "5xFinding txt files in directory");
-            }
             evaluate();
         }
-
     }
     //High entropy writefiles
     internal void writeFileS()
     {
         writeFileC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "High entropy WriteFile");
-        }
+        scanForSuspiciousStringsAndExtensions();
         evaluate();
-
     }
     //DeleteFiles not in \appdata\
     internal void deleteFileS()
     {
         deleteFileC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "Deletefile");
-        }
         scanForSuspiciousStringsAndExtensions();
         evaluate();
     }
@@ -715,11 +664,6 @@ class IntelliMod
     internal void winExecS()
     {
         winExecC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "Suspicious winExec usage");
-        }
         scanForSuspiciousStringsAndExtensions();
         evaluate();
     }
@@ -727,11 +671,6 @@ class IntelliMod
     internal void createProcessS()
     {
         createProcessC++;
-        //Display sign on the UI
-        if (UI.debugCheckBox.Checked)
-        {
-            FormInterface.listViewAddItem(UI.signsListView, "Suspicious createProcess usage");
-        }
         scanForSuspiciousStringsAndExtensions();
         evaluate();
     }

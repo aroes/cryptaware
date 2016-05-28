@@ -7,8 +7,8 @@
     <ProjectGuid>{895B696E-49F1-4CDD-A086-CC0B184A4E03}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>deviaretest</RootNamespace>
-    <AssemblyName>deviaretest</AssemblyName>
+    <RootNamespace>CryptAware</RootNamespace>
+    <AssemblyName>CryptAware</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -74,6 +74,9 @@
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>eyec.png.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Nektra.Deviare2, Version=2.0.0.0, Culture=neutral, PublicKeyToken=ca654cbae704bad4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -86,6 +89,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -106,7 +110,6 @@
     </Compile>
     <Compile Include="HookManager.cs" />
     <Compile Include="IntelliMod.cs" />
-    <Compile Include="MemoryScanner.cs" />
     <Compile Include="ProcessWatcher.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -114,6 +117,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="SectionSearch.cs" />
+    <Compile Include="WhitelistManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WhitelistManager.Designer.cs">
+      <DependentUpon>WhitelistManager.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="FormInterface.resx">
       <DependentUpon>FormInterface.cs</DependentUpon>
     </EmbeddedResource>
@@ -127,6 +136,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="WhitelistManager.resx">
+      <DependentUpon>WhitelistManager.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -160,6 +172,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\formbg.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\minus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="eyec.png.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

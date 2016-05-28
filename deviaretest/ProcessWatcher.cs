@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using deviaretest;
+using CryptAware;
 using Nektra.Deviare2;
 using System.Threading;
 using System.Runtime.InteropServices;
@@ -27,7 +27,6 @@ public class ProcessWatcher
         spyMgr.Initialize();
         //Keeps all the hookmanagers with their process IDs
         hManagers = new Dictionary<int, HookManager>();
-
     }
 
     public static ProcessWatcher GetInstance()
@@ -59,6 +58,8 @@ public class ProcessWatcher
     static extern uint SuspendThread(IntPtr hThread);
     [DllImport("kernel32.dll")]
     static extern uint ResumeThread(IntPtr hThread);
+    [DllImport("kernel32.dll")]
+    static extern Boolean CloseHandle(IntPtr handle);
 
     [MTAThread]
     private void HandleStartedProcess(NktProcess createdProcess)
@@ -69,6 +70,7 @@ public class ProcessWatcher
         long imageSize = new FileInfo(createdProcess.Path).Length;
         if (createdProcess.PlatformBits == 32 && imageSize < maxImageSize)
         {
+            //Suspend process:
             //Get all of the process's threads
             ProcessThreadCollection threads = Process.GetProcessById(createdProcess.Id).Threads;
             //This list will hold all the handles to the opened threads
@@ -80,18 +82,27 @@ public class ProcessWatcher
                 SuspendThread(hThread);
                 threadHandles.Add(hThread);
             }
-            //Make a new hookmanager for the process
-            HookManager hm = new HookManager(createdProcess);
-            //Add it to the list of hookmanagers
-            hManagers.Add(createdProcess.Id, hm);
-            //Install hooks
-            hm.InstallHooks();
+
+            //If file is not whitelisted, proceed to hook
+            if (!File.Exists(".\\whitelist.wca") ||
+                !File.ReadAllText(".\\whitelist.wca").Contains(createdProcess.Path, StringComparison.OrdinalIgnoreCase))
+            {
+                //Hook process:
+                //Make a new hookmanager for the process
+                HookManager hm = new HookManager(createdProcess);
+                //Add it to the list of hookmanagers
+                hManagers.Add(createdProcess.Id, hm);
+                //Install hooks
+                hm.InstallHooks();
+                Debug.WriteLine("Hooked " + createdProcess.Name + ' ' + createdProcess.Id + " DateTime:" + DateTime.Now);
+            }
+
             //Resume all threads
             foreach (IntPtr hThread in threadHandles)
             {
                 ResumeThread(hThread);
+                CloseHandle(hThread);
             }
-            Debug.WriteLine("Hooked " + createdProcess.Name + ' ' + createdProcess.Id + " DateTime:" + DateTime.Now);
         }
     }
 

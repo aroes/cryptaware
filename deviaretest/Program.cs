@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace deviaretest
+namespace CryptAware
 {
     static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        [MTAThread]
+        [STAThread]
         static void Main()
         {
             Application.EnableVisualStyles();
