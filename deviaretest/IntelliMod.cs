@@ -413,7 +413,8 @@ class IntelliMod
         {
             nktProc.Terminate();
             MessageBox.Show(
-                "Suspicious activity detected. " + nktProc.Name + " was terminated.",
+                "Suspicious activity detected. " + nktProc.Name +
+                "\n(" + nktProc.Path + ")\nwas terminated.",
                 "Warning",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Exclamation);
