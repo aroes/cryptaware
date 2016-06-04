@@ -24,10 +24,10 @@ class IntelliMod
     //Time of last string scan
     private int lastScan = 0;
 
-    //Likelyhood based on found strings
-    double ransomLikelyhoodFromStrings = 0;
+    //Likelihood based on found strings
+    double ransomLikelihoodFromStrings = 0;
 
-    //Threshold for malicious likelyhood
+    //Threshold for malicious Likelihood
     private double stringsThreshold = 0.25;
     //Fraction of extensions that need to be found to mark a found white/blacklist
     double wSuspiciousFraction = (double)1 / 2;
@@ -193,8 +193,8 @@ class IntelliMod
         displaySign("File deletion", deleteFileM, deleteFileT);
         displaySign("Unusual WinExec", winExecC, 0);
         displaySign("Unusual CreateProcess", createProcessC, 0);
-        displaySign("String suspicion", ransomLikelyhoodFromStrings, stringsThreshold);
-        displaySign("Overall suspicion", maxLikelyhood, overallThreshold);
+        displaySign("String suspicion", ransomLikelihoodFromStrings, stringsThreshold);
+        displaySign("Overall suspicion", maxLikelihood, overallThreshold);
     }
 
     //Helper to display signs on UI
@@ -251,15 +251,15 @@ class IntelliMod
     #region Decision process
 
     //0-1 is or was this program ransomware
-    double maxLikelyhood = 0;
+    double maxLikelihood = 0;
 
-    //Threshold for likelyhood
+    //Threshold for Likelihood
     private double overallThreshold = 0.25;
 
     #region Sign lists (update them together)
     private double[] signWeights = {
             //String analysis
-            20, //ransomLikelyhoodFromStrings > stringsThreshold, //Strings indicate ransomware
+            20, //ransomLikelihoodFromStrings > stringsThreshold, //Strings indicate ransomware
             5,//foundExtensionsWhitelist || foundExtensionsBlacklist, //Memory contains a list of extensions
             15,//foundExtensionsWhitelist ^ foundExtensionsBlacklist, //Memory contains a whitelist xor a blacklist (most likely in ransomware)
             //Call analysis
@@ -290,7 +290,7 @@ class IntelliMod
         //Aggregate all indicators
         bool[] signs = {
             //String analysis
-            ransomLikelyhoodFromStrings > stringsThreshold, //Strings indicate ransomware0
+            ransomLikelihoodFromStrings > stringsThreshold, //Strings indicate ransomware0
             foundExtensionsWhitelist || foundExtensionsBlacklist, //Memory contains a list of extensions1
             foundExtensionsWhitelist ^ foundExtensionsBlacklist, //Memory contains a whitelist xor a blacklist (most likely in ransomware)2
             //Call analysis
@@ -323,7 +323,7 @@ class IntelliMod
     private void evaluate()
     {
         //0-1 is this program ransomware
-        double tempLikelyhood = 0;
+        double tempLikelihood = 0;
         //Get up to date Max values
         refreshMax();
         bool[] signs = aggregateSigns();
@@ -332,13 +332,13 @@ class IntelliMod
         {
             if (signs[i])
             {
-                tempLikelyhood += signWeights[i] / sum;
+                tempLikelihood += signWeights[i] / sum;
             }
         }
-        //Update max likelyhood 
-        maxLikelyhood = Math.Max(maxLikelyhood, tempLikelyhood);
+        //Update max Likelihood 
+        maxLikelihood = Math.Max(maxLikelihood, tempLikelihood);
         //If process is ransomware
-        if (maxLikelyhood > overallThreshold && !ignore)
+        if (maxLikelihood > overallThreshold && !ignore)
         {
             handleRansomware();
         }
@@ -443,16 +443,16 @@ class IntelliMod
                 //Update last scan time
                 lastScan = now;
                 //Search for strings
-                ransomLikelyhoodFromStrings = Math.Max(ransomLikelyhoodFromStrings, scanForStrings());
+                ransomLikelihoodFromStrings = Math.Max(ransomLikelihoodFromStrings, scanForStrings());
                 //Search for extension list
                 scanForExtensions();
             }
         }
     }
-    //Returns the likelyhood of the process being ransomware based on found strings
+    //Returns the Likelihood of the process being ransomware based on found strings
     private double scanForStrings()
     {
-        double likelyhood = 0;
+        double likelihood = 0;
         double sum = suspiciousStringsWeights.Sum();
         //Search 
         for (int i = 0; i < suspiciousStrings.Length; i++)
@@ -461,13 +461,13 @@ class IntelliMod
             //Special case for first string: ask to refresh memory dump file
             if (searcher.containsString(suspiciousStrings[i], i == 0))
             {
-                //Update likelyhood that that the program is ransomware
-                likelyhood += suspiciousStringsWeights[i] / sum;
+                //Update likelihood that that the program is ransomware
+                likelihood += suspiciousStringsWeights[i] / sum;
                 //Set string for display
                 discoveredStrings[i] = true;
             }
         }
-        return likelyhood;
+        return likelihood;
 
     }
     //Display string evaluation result to UI
@@ -493,7 +493,7 @@ class IntelliMod
         {
             FormInterface.listViewAddItem(UI.stringListView, "Found extension list");
         }
-        FormInterface.listViewAddItem(UI.stringListView, "String suspicion: " + ransomLikelyhoodFromStrings);
+        FormInterface.listViewAddItem(UI.stringListView, "String suspicion: " + ransomLikelihoodFromStrings);
     }
 
     //Updates class fields if it found a whitelist or blacklist of extensions
