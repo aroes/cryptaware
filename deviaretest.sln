@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptAware", "deviaretest\C
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crypttest", "crypttest\crypttest.vcxproj", "{B0205E25-D0B8-42EC-9571-E4DBEFE1DFFF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "memfinder", "memfinder\memfinder.vcxproj", "{77953226-F1CA-4F00-A3D0-7F43DB885691}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,16 +39,6 @@ Global
 		{B0205E25-D0B8-42EC-9571-E4DBEFE1DFFF}.Release|x64.Build.0 = Release|x64
 		{B0205E25-D0B8-42EC-9571-E4DBEFE1DFFF}.Release|x86.ActiveCfg = Release|Win32
 		{B0205E25-D0B8-42EC-9571-E4DBEFE1DFFF}.Release|x86.Build.0 = Release|Win32
-		{77953226-F1CA-4F00-A3D0-7F43DB885691}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{77953226-F1CA-4F00-A3D0-7F43DB885691}.Debug|x64.ActiveCfg = Debug|x64
-		{77953226-F1CA-4F00-A3D0-7F43DB885691}.Debug|x64.Build.0 = Debug|x64
-		{77953226-F1CA-4F00-A3D0-7F43DB885691}.Debug|x86.ActiveCfg = Debug|Win32
-		{77953226-F1CA-4F00-A3D0-7F43DB885691}.Debug|x86.Build.0 = Debug|Win32
-		{77953226-F1CA-4F00-A3D0-7F43DB885691}.Release|Any CPU.ActiveCfg = Release|Win32
-		{77953226-F1CA-4F00-A3D0-7F43DB885691}.Release|x64.ActiveCfg = Release|x64
-		{77953226-F1CA-4F00-A3D0-7F43DB885691}.Release|x64.Build.0 = Release|x64
-		{77953226-F1CA-4F00-A3D0-7F43DB885691}.Release|x86.ActiveCfg = Release|Win32
-		{77953226-F1CA-4F00-A3D0-7F43DB885691}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

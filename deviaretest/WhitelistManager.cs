@@ -32,7 +32,7 @@ namespace CryptAware
         private void minusButton_Click(object sender, EventArgs e)
         {
             ListView.SelectedListViewItemCollection selected = pathsListView.SelectedItems;
-            if (selected.Count != 0)
+            if (selected.Count != 0 && File.Exists(".\\whitelist.wca"))
             {
                 List<string> lines = new List<string>(File.ReadAllLines(".\\whitelist.wca"));
                 foreach (ListViewItem item in selected)
@@ -67,8 +67,8 @@ namespace CryptAware
         //Refresh items from file
         private void refreshList()
         {
+            pathsListView.Items.Clear();
             if (File.Exists(".\\whitelist.wca")) {
-                pathsListView.Items.Clear();
                 foreach (string line in File.ReadAllLines(".\\whitelist.wca"))
                 {
                     pathsListView.Items.Add(line);
