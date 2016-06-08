@@ -15,8 +15,6 @@ public class ProcessWatcher
     internal NktSpyMgr spyMgr;
     private FormInterface UI;
     internal Dictionary<int, HookManager> hManagers;
-    private ManualResetEvent shutdownDeviareEvent = new ManualResetEvent(false);
-    private ManualResetEvent deviareInitializedEvent = new ManualResetEvent(false);
 
     public ProcessWatcher()
     {

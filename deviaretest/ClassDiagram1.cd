@@ -1,0 +1,234 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="IntelliMod">
+    <Position X="7.5" Y="0.5" Width="3" />
+    <Members>
+      <Field Name="bSuspiciousFraction" Hidden="true" />
+      <Method Name="CloseHandle" Hidden="true" />
+      <Field Name="createFileC" Hidden="true" />
+      <Field Name="createFileD" Hidden="true" />
+      <Field Name="createFileM" Hidden="true" />
+      <Method Name="createFileS" Hidden="true" />
+      <Field Name="createFileT" Hidden="true" />
+      <Field Name="createProcessC" Hidden="true" />
+      <Method Name="createProcessS" Hidden="true" />
+      <Field Name="createRemoteThreadC" Hidden="true" />
+      <Method Name="createRemoteThreadS" Hidden="true" />
+      <Field Name="cryptAcquireContextC" Hidden="true" />
+      <Method Name="cryptAcquireContextS" Hidden="true" />
+      <Field Name="cryptDestroyKeyC" Hidden="true" />
+      <Field Name="cryptDestroyKeyD" Hidden="true" />
+      <Field Name="cryptDestroyKeyM" Hidden="true" />
+      <Method Name="cryptDestroyKeyS" Hidden="true" />
+      <Field Name="cryptDestroyKeyT" Hidden="true" />
+      <Field Name="cryptEncryptC" Hidden="true" />
+      <Field Name="cryptEncryptD" Hidden="true" />
+      <Field Name="cryptEncryptM" Hidden="true" />
+      <Method Name="cryptEncryptS" Hidden="true" />
+      <Field Name="cryptEncryptT" Hidden="true" />
+      <Field Name="cryptExportKeyC" Hidden="true" />
+      <Field Name="cryptExportKeyD" Hidden="true" />
+      <Field Name="cryptExportKeyM" Hidden="true" />
+      <Method Name="cryptExportKeyS" Hidden="true" />
+      <Field Name="cryptExportKeyT" Hidden="true" />
+      <Field Name="cryptGenKeyC" Hidden="true" />
+      <Field Name="cryptGenKeyD" Hidden="true" />
+      <Field Name="cryptGenKeyM" Hidden="true" />
+      <Method Name="cryptGenKeyS" Hidden="true" />
+      <Field Name="cryptGenKeyT" Hidden="true" />
+      <Field Name="cryptImportKeyC" Hidden="true" />
+      <Method Name="cryptImportKeyS" Hidden="true" />
+      <Field Name="deleteFileC" Hidden="true" />
+      <Field Name="deleteFileD" Hidden="true" />
+      <Field Name="deleteFileM" Hidden="true" />
+      <Method Name="deleteFileS" Hidden="true" />
+      <Field Name="deleteFileT" Hidden="true" />
+      <Method Name="displaySign" Hidden="true" />
+      <Field Name="findFirstFileC" Hidden="true" />
+      <Field Name="findFirstFileD" Hidden="true" />
+      <Field Name="findFirstFileM" Hidden="true" />
+      <Method Name="findFirstFileS" Hidden="true" />
+      <Field Name="findFirstFileT" Hidden="true" />
+      <Method Name="findFirstFileTxtS" Hidden="true" />
+      <Method Name="foundStartup" Hidden="true" />
+      <Field Name="getComputerNameC" Hidden="true" />
+      <Method Name="getComputerNameS" Hidden="true" />
+      <Field Name="ignore" Hidden="true" />
+      <Method Name="IntelliMod" Hidden="true" />
+      <Method Name="killTimer" Hidden="true" />
+      <Field Name="lastScan" Hidden="true" />
+      <Field Name="maxLikelihood" Hidden="true" />
+      <Field Name="nktProc" Hidden="true" />
+      <Method Name="OpenThread" Hidden="true" />
+      <Field Name="overallThreshold" Hidden="true" />
+      <Field Name="processID" Hidden="true" />
+      <Field Name="ransomLikelihoodFromStrings" Hidden="true" />
+      <Method Name="refreshMax" Hidden="true" />
+      <Method Name="ResumeThread" Hidden="true" />
+      <Method Name="scanForExtensions" Hidden="true" />
+      <Method Name="scanForStrings" Hidden="true" />
+      <Field Name="searcher" Hidden="true" />
+      <Field Name="signWeights" Hidden="true" />
+      <Field Name="startup" Hidden="true" />
+      <Method Name="SuspendThread" Hidden="true" />
+      <Field Name="suspendThreadC" Hidden="true" />
+      <Method Name="suspendThreadS" Hidden="true" />
+      <Field Name="suspiciousStringsWeights" Hidden="true" />
+      <Field Name="timer" Hidden="true" />
+      <Field Name="UI" Hidden="true" />
+      <Field Name="whitelist" Hidden="true" />
+      <Field Name="winExecC" Hidden="true" />
+      <Method Name="winExecS" Hidden="true" />
+      <Field Name="winProc" Hidden="true" />
+      <Field Name="writeFileC" Hidden="true" />
+      <Field Name="writeFileD" Hidden="true" />
+      <Field Name="writeFileM" Hidden="true" />
+      <Method Name="writeFileS" Hidden="true" />
+      <Field Name="writeFileT" Hidden="true" />
+      <Field Name="wSuspiciousFraction" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>EAUAEQYIBg5IiskMAxQsECy6oIKEwgQmkQBAMAC0EWA=</HashCode>
+      <FileName>IntelliMod.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ProcessWatcher">
+    <Position X="4" Y="2.75" Width="1.5" />
+    <Members>
+      <Method Name="CloseHandle" Hidden="true" />
+      <Method Name="GetInstance" Hidden="true" />
+      <Method Name="OpenThread" Hidden="true" />
+      <Field Name="pWatcher" Hidden="true" />
+      <Method Name="ResumeThread" Hidden="true" />
+      <Method Name="Stop" Hidden="true" />
+      <Method Name="SuspendThread" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAkAAAAAAAAQAAAAACAAACAgBAAAARAEoAAAAgAAEAA=</HashCode>
+      <FileName>ProcessWatcher.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SectionSearch">
+    <Position X="0.5" Y="2" Width="1.5" />
+    <Members>
+      <Field Name="fileLock" Hidden="true" />
+      <Method Name="getSections" Hidden="true" />
+      <Field Name="p" Hidden="true" />
+      <Field Name="searchDotTextSection" Hidden="true" />
+      <Method Name="SectionSearch" Hidden="true" />
+      <Method Name="setDeepSearch" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AhAAAAAAAAQAAAAAgAAAAAAAABAAAAAAgEAAAAAAAAA=</HashCode>
+      <FileName>SectionSearch.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CryptAware.FormInterface">
+    <Position X="5.75" Y="2" Width="1.5" />
+    <Members>
+      <Field Name="caProcess" Hidden="true" />
+      <Field Name="columnHeader1" Hidden="true" />
+      <Field Name="columnHeader2" Hidden="true" />
+      <Field Name="columnHeader3" Hidden="true" />
+      <Field Name="columnHeader4" Hidden="true" />
+      <Field Name="components" Hidden="true" />
+      <Method Name="Dispose" Hidden="true" />
+      <Field Name="exitMenuItem" Hidden="true" />
+      <Method Name="exitMenuItem_Click" Hidden="true" />
+      <Method Name="FormInterface" Hidden="true" />
+      <Method Name="FormInterface_Closing" Hidden="true" />
+      <Method Name="FormInterface_FormClosed" Hidden="true" />
+      <Method Name="FormInterface_Load" Hidden="true" />
+      <Field Name="iconContextMenu" Hidden="true" />
+      <Method Name="InitializeComponent" Hidden="true" />
+      <Field Name="killRadioButton" Hidden="true" />
+      <Field Name="label1" Hidden="true" />
+      <Field Name="label2" Hidden="true" />
+      <Field Name="notifyIcon" Hidden="true" />
+      <Method Name="notifyIcon_DoubleClick" Hidden="true" />
+      <Field Name="panel1" Hidden="true" />
+      <Field Name="passiveRadioButton" Hidden="true" />
+      <Field Name="processListView" Hidden="true" />
+      <Method Name="processListView_ItemSelectionChanged" Hidden="true" />
+      <Field Name="signCountListView" Hidden="true" />
+      <Method Name="signCountListView_Click" Hidden="true" />
+      <Field Name="startButton" Hidden="true" />
+      <Method Name="startButton_Click" Hidden="true" />
+      <Field Name="startToolTip" Hidden="true" />
+      <Field Name="stringLabel" Hidden="true" />
+      <Field Name="stringListView" Hidden="true" />
+      <Method Name="stringListView_Click" Hidden="true" />
+      <Field Name="suspendRadioButton" Hidden="true" />
+      <Field Name="whiteListButton" Hidden="true" />
+      <Method Name="whiteListButton_Click" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AECCAAAAACAQADggoFSgAADCDwARAEEBAEARQwgVEAA=</HashCode>
+      <FileName>FormInterface.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CryptAware.HookManager">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <Members>
+      <Method Name="createFileAH" Hidden="true" />
+      <Method Name="createFileH" Hidden="true" />
+      <Method Name="createFileWH" Hidden="true" />
+      <Method Name="createProcessAH" Hidden="true" />
+      <Method Name="createProcessH" Hidden="true" />
+      <Method Name="createProcessWH" Hidden="true" />
+      <Method Name="createRemoteThreadExH" Hidden="true" />
+      <Method Name="createRemoteThreadH" Hidden="true" />
+      <Method Name="cryptAcquireContextAH" Hidden="true" />
+      <Method Name="cryptAcquireContextH" Hidden="true" />
+      <Method Name="cryptAcquireContextWH" Hidden="true" />
+      <Method Name="cryptDestroyKeyH" Hidden="true" />
+      <Method Name="cryptEncryptH" Hidden="true" />
+      <Method Name="cryptExportKeyH" Hidden="true" />
+      <Method Name="cryptGenKeyH" Hidden="true" />
+      <Method Name="cryptImportKeyH" Hidden="true" />
+      <Method Name="deleteFileAH" Hidden="true" />
+      <Method Name="deleteFileH" Hidden="true" />
+      <Method Name="deleteFileWH" Hidden="true" />
+      <Method Name="findFirstFileAH" Hidden="true" />
+      <Method Name="findFirstFileExAH" Hidden="true" />
+      <Method Name="findFirstFileExWH" Hidden="true" />
+      <Method Name="findFirstFileH" Hidden="true" />
+      <Method Name="findFirstFileWH" Hidden="true" />
+      <Method Name="getComputerNameAH" Hidden="true" />
+      <Method Name="getComputerNameExAH" Hidden="true" />
+      <Method Name="getComputerNameExWH" Hidden="true" />
+      <Method Name="getComputerNameH" Hidden="true" />
+      <Method Name="getComputerNameWH" Hidden="true" />
+      <Method Name="getEntropy" Hidden="true" />
+      <Method Name="HookManager" Hidden="true" />
+      <Field Name="ID" Hidden="true" />
+      <Method Name="InstallFunctionHook" Hidden="true" />
+      <Method Name="regCreateKeyExAH" Hidden="true" />
+      <Method Name="regCreateKeyExH" Hidden="true" />
+      <Method Name="regCreateKeyExWH" Hidden="true" />
+      <Method Name="suspendThreadH" Hidden="true" />
+      <Field Name="UI" Hidden="true" />
+      <Method Name="winExecH" Hidden="true" />
+      <Method Name="writeFileH" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>BIiAIAAGBAAw5AEgAAAAAgIEAAAMgGAEAQABCcBgEQM=</HashCode>
+      <FileName>HookManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CryptAware.Program">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CryptAware.WhitelistManager">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAEACAAAAAAAQCiQAADCAAEAIAAAAAAAAAAABA=</HashCode>
+      <FileName>WhitelistManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
