@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ClassDiagram MajorVersion="1" MinorVersion="1">
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
   <Class Name="IntelliMod">
-    <Position X="7.5" Y="0.5" Width="3" />
+    <Position X="2.75" Y="6" Width="3.25" />
     <Members>
+      <Field Name="blacklist" Hidden="true" />
       <Field Name="bSuspiciousFraction" Hidden="true" />
       <Method Name="CloseHandle" Hidden="true" />
       <Field Name="createFileC" Hidden="true" />
@@ -43,6 +44,7 @@
       <Field Name="deleteFileM" Hidden="true" />
       <Method Name="deleteFileS" Hidden="true" />
       <Field Name="deleteFileT" Hidden="true" />
+      <Field Name="discoveredStrings" Hidden="true" />
       <Method Name="displaySign" Hidden="true" />
       <Field Name="findFirstFileC" Hidden="true" />
       <Field Name="findFirstFileD" Hidden="true" />
@@ -50,6 +52,8 @@
       <Method Name="findFirstFileS" Hidden="true" />
       <Field Name="findFirstFileT" Hidden="true" />
       <Method Name="findFirstFileTxtS" Hidden="true" />
+      <Field Name="foundExtensionsBlacklist" Hidden="true" />
+      <Field Name="foundExtensionsWhitelist" Hidden="true" />
       <Method Name="foundStartup" Hidden="true" />
       <Field Name="getComputerNameC" Hidden="true" />
       <Method Name="getComputerNameS" Hidden="true" />
@@ -60,19 +64,18 @@
       <Field Name="maxLikelihood" Hidden="true" />
       <Field Name="nktProc" Hidden="true" />
       <Method Name="OpenThread" Hidden="true" />
-      <Field Name="overallThreshold" Hidden="true" />
       <Field Name="processID" Hidden="true" />
       <Field Name="ransomLikelihoodFromStrings" Hidden="true" />
       <Method Name="refreshMax" Hidden="true" />
       <Method Name="ResumeThread" Hidden="true" />
       <Method Name="scanForExtensions" Hidden="true" />
       <Method Name="scanForStrings" Hidden="true" />
-      <Field Name="searcher" Hidden="true" />
       <Field Name="signWeights" Hidden="true" />
       <Field Name="startup" Hidden="true" />
       <Method Name="SuspendThread" Hidden="true" />
       <Field Name="suspendThreadC" Hidden="true" />
       <Method Name="suspendThreadS" Hidden="true" />
+      <Field Name="suspiciousStrings" Hidden="true" />
       <Field Name="suspiciousStringsWeights" Hidden="true" />
       <Field Name="timer" Hidden="true" />
       <Field Name="UI" Hidden="true" />
@@ -93,15 +96,17 @@
     </TypeIdentifier>
   </Class>
   <Class Name="ProcessWatcher">
-    <Position X="4" Y="2.75" Width="1.5" />
+    <Position X="0.5" Y="3.25" Width="3.25" />
     <Members>
       <Method Name="CloseHandle" Hidden="true" />
       <Method Name="GetInstance" Hidden="true" />
       <Method Name="OpenThread" Hidden="true" />
+      <Method Name="ProcessWatcher" Hidden="true" />
       <Field Name="pWatcher" Hidden="true" />
       <Method Name="ResumeThread" Hidden="true" />
       <Method Name="Stop" Hidden="true" />
       <Method Name="SuspendThread" Hidden="true" />
+      <Field Name="UI" Hidden="true" />
     </Members>
     <TypeIdentifier>
       <HashCode>AAkAAAAAAAAQAAAAACAAACAgBAAAARAEoAAAAgAAEAA=</HashCode>
@@ -109,8 +114,9 @@
     </TypeIdentifier>
   </Class>
   <Class Name="SectionSearch">
-    <Position X="0.5" Y="2" Width="1.5" />
+    <Position X="6.25" Y="6" Width="2" />
     <Members>
+      <Field Name="doNotRescan" Hidden="true" />
       <Field Name="fileLock" Hidden="true" />
       <Method Name="getSections" Hidden="true" />
       <Field Name="p" Hidden="true" />
@@ -124,7 +130,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="CryptAware.FormInterface">
-    <Position X="5.75" Y="2" Width="1.5" />
+    <Position X="0.5" Y="1.75" Width="1.5" />
     <Members>
       <Field Name="caProcess" Hidden="true" />
       <Field Name="columnHeader1" Hidden="true" />
@@ -144,12 +150,17 @@
       <Field Name="killRadioButton" Hidden="true" />
       <Field Name="label1" Hidden="true" />
       <Field Name="label2" Hidden="true" />
+      <Method Name="listViewAddItem" Hidden="true" />
+      <Method Name="listViewAddItemRange" Hidden="true" />
+      <Method Name="listViewDelItem" Hidden="true" />
+      <Method Name="listViewItemsClear" Hidden="true" />
       <Field Name="notifyIcon" Hidden="true" />
       <Method Name="notifyIcon_DoubleClick" Hidden="true" />
       <Field Name="panel1" Hidden="true" />
       <Field Name="passiveRadioButton" Hidden="true" />
       <Field Name="processListView" Hidden="true" />
       <Method Name="processListView_ItemSelectionChanged" Hidden="true" />
+      <Field Name="procWatcher" Hidden="true" />
       <Field Name="signCountListView" Hidden="true" />
       <Method Name="signCountListView_Click" Hidden="true" />
       <Field Name="startButton" Hidden="true" />
@@ -159,6 +170,7 @@
       <Field Name="stringListView" Hidden="true" />
       <Method Name="stringListView_Click" Hidden="true" />
       <Field Name="suspendRadioButton" Hidden="true" />
+      <Field Name="UI" Hidden="true" />
       <Field Name="whiteListButton" Hidden="true" />
       <Method Name="whiteListButton_Click" Hidden="true" />
     </Members>
@@ -168,7 +180,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="CryptAware.HookManager">
-    <Position X="4" Y="0.5" Width="1.5" />
+    <Position X="0.5" Y="6" Width="2" />
     <Members>
       <Method Name="createFileAH" Hidden="true" />
       <Method Name="createFileH" Hidden="true" />
@@ -203,6 +215,7 @@
       <Method Name="HookManager" Hidden="true" />
       <Field Name="ID" Hidden="true" />
       <Method Name="InstallFunctionHook" Hidden="true" />
+      <Field Name="pw" Hidden="true" />
       <Method Name="regCreateKeyExAH" Hidden="true" />
       <Method Name="regCreateKeyExH" Hidden="true" />
       <Method Name="regCreateKeyExWH" Hidden="true" />
@@ -223,8 +236,26 @@
       <FileName>Program.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CryptAware.WhitelistManager">
-    <Position X="2.25" Y="0.5" Width="1.5" />
+  <Class Name="CryptAware.WhitelistManager" Collapsed="true">
+    <Position X="2.25" Y="2" Width="1.5" />
+    <Members>
+      <Field Name="closeButton" Hidden="true" />
+      <Method Name="closeButton_Click" Hidden="true" />
+      <Field Name="components" Hidden="true" />
+      <Method Name="Dispose" Hidden="true" />
+      <Method Name="InitializeComponent" Hidden="true" />
+      <Field Name="minusButton" Hidden="true" />
+      <Method Name="minusButton_Click" Hidden="true" />
+      <Field Name="openFileDialog" Hidden="true" />
+      <Field Name="pathColumnHeader" Hidden="true" />
+      <Field Name="pathsListView" Hidden="true" />
+      <Field Name="plusButton" Hidden="true" />
+      <Method Name="plusButton_Click" Hidden="true" />
+      <Method Name="refreshList" Hidden="true" />
+      <Method Name="WhitelistManager" Hidden="true" />
+      <Method Name="WhitelistManager_FormClosed" Hidden="true" />
+      <Method Name="WhitelistManager_Load" Hidden="true" />
+    </Members>
     <TypeIdentifier>
       <HashCode>AIAAAAAEACAAAAAAAQCiQAADCAAEAIAAAAAAAAAAABA=</HashCode>
       <FileName>WhitelistManager.cs</FileName>
