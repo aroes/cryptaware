@@ -49,8 +49,8 @@
             this.iconContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stringLabel = new System.Windows.Forms.Label();
-            this.startButton = new RoundButton();
             this.startToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.startButton = new RoundButton();
             this.panel1.SuspendLayout();
             this.iconContextMenu.SuspendLayout();
             this.SuspendLayout();
@@ -123,10 +123,12 @@
             // suspendRadioButton
             // 
             this.suspendRadioButton.AutoSize = true;
+            this.suspendRadioButton.Checked = true;
             this.suspendRadioButton.Location = new System.Drawing.Point(0, 19);
             this.suspendRadioButton.Name = "suspendRadioButton";
             this.suspendRadioButton.Size = new System.Drawing.Size(96, 17);
             this.suspendRadioButton.TabIndex = 8;
+            this.suspendRadioButton.TabStop = true;
             this.suspendRadioButton.Text = "Suspend mode";
             this.suspendRadioButton.UseVisualStyleBackColor = true;
             // 
@@ -165,12 +167,10 @@
             // passiveRadioButton
             // 
             this.passiveRadioButton.AutoSize = true;
-            this.passiveRadioButton.Checked = true;
             this.passiveRadioButton.Location = new System.Drawing.Point(0, 65);
             this.passiveRadioButton.Name = "passiveRadioButton";
             this.passiveRadioButton.Size = new System.Drawing.Size(91, 17);
             this.passiveRadioButton.TabIndex = 10;
-            this.passiveRadioButton.TabStop = true;
             this.passiveRadioButton.Text = "Passive mode";
             this.passiveRadioButton.UseVisualStyleBackColor = true;
             // 
