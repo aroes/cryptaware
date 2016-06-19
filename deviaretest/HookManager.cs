@@ -281,7 +281,7 @@ namespace CryptAware
             NktTools tool = new NktTools();
             string path = tool.GetFileNameFromHandle(callInfo.Params().GetAt(0).PointerVal, callInfo.Process());
 
-            //If path is relevant
+            //If path is relevant check entropy
             if (!path.Contains("\\appdata\\", StringComparison.OrdinalIgnoreCase) &&
                 !path.Contains("\\REGISTRY\\"))
             {
