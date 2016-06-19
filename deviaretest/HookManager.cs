@@ -105,8 +105,6 @@ namespace CryptAware
             //Removed this flag eNktHookFlags.flgOnly32Bits
             //Create hook for the given function
             NktHook hook = pw.spyMgr.CreateHook(functionName, (int)eNktHookFlags.flgOnlyPreCall);
-            //Event watcher
-
             //Activate the hook
             hook.Hook(true);
             hook.Attach(process, true);
