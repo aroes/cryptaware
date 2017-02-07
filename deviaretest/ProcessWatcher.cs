@@ -124,7 +124,7 @@ public class ProcessWatcher
     }
 
     [MTAThread]
-    //When a hooked function executes
+    //When a hooked function executes (reflection)
     private void OnFunctionCalled(NktHook hook, INktProcess proc, INktHookCallInfo callInfo)
     {
         //Call the function specific handler from string
